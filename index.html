@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b132b">
+  <title>Calendario dell'Avvento 16:9</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/svg+xml" href="./assets/icons/icon.svg">
+  <link rel="apple-touch-icon" href="./assets/icons/icon-192.png">
+  <link rel="stylesheet" href="./css/main.css">
+</head>
+<body>
+  <main id="stage" aria-label="Calendario dell'Avvento">
+    <!-- Sfondo stellato e luna -->
+    <div class="sky" aria-hidden="true">
+      <div class="moon"></div>
+      <div class="stars stars-1"></div>
+      <div class="stars stars-2"></div>
+      <div class="tree tree-left"></div>
+      <div class="tree tree-right"></div>
+    </div>
+
+    <!-- Barra discreta in alto -->
+    <header class="hud-bar">
+      <div class="hud-status">
+        <span id="opened-counter" class="hud-pill">Aperte: 0 / 25</span>
+        <span id="mode-badge" class="hud-pill hud-pill--muted">Modalità: Sequenziale</span>
+      </div>
+      <nav class="hud-actions" aria-label="Azioni rapide">
+        <button id="btn-fullscreen" type="button" class="hud-btn" title="Schermo intero">
+          <span aria-hidden="true">⛶</span> Schermo intero
+        </button>
+        <a href="./configuration.html" class="hud-btn hud-btn--accent" title="Configura calendario">
+          <span aria-hidden="true">⚙</span> Configura
+        </a>
+      </nav>
+    </header>
+
+    <!-- La Casa dell'Avvento (4 piani: 3x6 finestre + piano terra 6 finestre piccole e portone centrale) -->
+    <section class="house-wrapper" aria-label="Casa del calendario dell'avvento">
+      <div class="chimney" aria-hidden="true">
+        <div class="chimney-snow"></div>
+        <div class="smoke smoke-1"></div>
+        <div class="smoke smoke-2"></div>
+      </div>
+
+      <div class="roof" aria-hidden="true">
+        <img class="roof-logo" src="./assets/brand/gin-comici-logo.png" alt="">
+        <div class="roof-trim"></div>
+        <div class="roof-snow"></div>
+        <div class="roof-garland"></div>
+      </div>
+
+      <div id="house-facade" class="house-facade">
+        <!-- Generato dinamicamente da js/app.js -->
+      </div>
+    </section>
+
+    <!-- Terreno innevato -->
+    <div class="snow-ground" aria-hidden="true"></div>
+
+    <!-- Modale contenuto casella (all'interno di #stage per mantenere il rapporto 16:9) -->
+    <div id="modal-overlay" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
+      <div class="modal-card">
+        <button id="modal-close" type="button" class="modal-close" aria-label="Chiudi finestra">&times;</button>
+        <div class="modal-meta">
+          <span id="modal-box-badge" class="modal-badge">Casella #1</span>
+          <span id="modal-status-tag" class="modal-tag">Aperta ora</span>
+        </div>
+        <h2 id="modal-title" class="modal-title">Titolo</h2>
+        <div class="modal-divider" aria-hidden="true"></div>
+        <div id="modal-description" class="modal-description">Descrizione</div>
+        <div class="modal-footer">
+          <button id="modal-confirm" type="button" class="modal-btn">Chiudi</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="./js/storage.js"></script>
+  <script src="./js/app.js"></script>
+</body>
+</html>

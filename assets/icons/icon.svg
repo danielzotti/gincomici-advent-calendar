@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0b132b"/>
+      <stop offset="100%" stop-color="#1c2541"/>
+    </linearGradient>
+    <linearGradient id="glow" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffe082"/>
+      <stop offset="100%" stop-color="#ffb300"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <!-- Stars -->
+  <circle cx="96" cy="96" r="5" fill="#fff8e1" opacity="0.9"/>
+  <circle cx="420" cy="110" r="6" fill="#fff8e1" opacity="0.8"/>
+  <circle cx="380" cy="64" r="4" fill="#fff8e1" opacity="0.7"/>
+  <!-- House body -->
+  <rect x="116" y="210" width="280" height="232" rx="12" fill="#8b2635" stroke="#5a1822" stroke-width="8"/>
+  <!-- Roof -->
+  <polygon points="86,220 256,84 426,220" fill="#2c3e50" stroke="#e8f1f5" stroke-width="14" stroke-linejoin="round"/>
+  <!-- Chimney -->
+  <rect x="320" y="106" width="36" height="60" rx="4" fill="#5a1822"/>
+  <rect x="314" y="98" width="48" height="14" rx="5" fill="#f4f9fc"/>
+  <!-- Windows top -->
+  <rect x="150" y="242" width="52" height="52" rx="6" fill="url(#glow)" stroke="#f5e6c8" stroke-width="5"/>
+  <rect x="230" y="242" width="52" height="52" rx="6" fill="#1b2a4a" stroke="#f5e6c8" stroke-width="5"/>
+  <rect x="310" y="242" width="52" height="52" rx="6" fill="url(#glow)" stroke="#f5e6c8" stroke-width="5"/>
+  <!-- Door -->
+  <path d="M222 442 V348 a34 34 0 0 1 68 0 V442 Z" fill="#4e2a1e" stroke="#f5e6c8" stroke-width="5"/>
+  <circle cx="274" cy="396" r="4.5" fill="#ffd54f"/>
+  <!-- Side ground windows -->
+  <rect x="150" y="346" width="44" height="44" rx="6" fill="#1b2a4a" stroke="#f5e6c8" stroke-width="5"/>
+  <rect x="318" y="346" width="44" height="44" rx="6" fill="url(#glow)" stroke="#f5e6c8" stroke-width="5"/>
+  <!-- Snow base -->
+  <rect x="76" y="432" width="360" height="28" rx="14" fill="#f4f9fc"/>
+</svg>

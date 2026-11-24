@@ -1,0 +1,31 @@
+{
+  "name": "Calendario dell'Avvento 16:9",
+  "short_name": "Avvento",
+  "description": "Calendario dell'Avvento interattivo in 16:9 con 24 finestre e portone centrale, modalità sequenziale o preassegnata, funzionante offline.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "landscape",
+  "background_color": "#0b132b",
+  "theme_color": "#0b132b",
+  "icons": [
+    {
+      "src": "./assets/icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "./assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0b132b">
+  <title>Configurazione — Calendario dell'Avvento</title>
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" type="image/svg+xml" href="./assets/icons/icon.svg">
+  <link rel="stylesheet" href="./css/config.css">
+</head>
+<body>
+  <div class="config-shell">
+    <header class="config-header">
+      <div>
+        <h1>Configurazione Calendario dell'Avvento</h1>
+        <p class="subtitle">Gestisci la modalità di gioco, l'ordine e i contenuti delle 24 finestre + portone centrale (#25).</p>
+      </div>
+      <div class="header-actions">
+        <a href="./index.html" class="btn btn-primary">← Torna al Calendario</a>
+      </div>
+    </header>
+
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+    <div class="grid-panels">
+      <!-- Pannello Modalità di Gioco -->
+      <section class="card" aria-labelledby="mode-heading">
+        <h2 id="mode-heading">Modalità di Gioco</h2>
+        <div class="mode-options" role="radiogroup" aria-labelledby="mode-heading">
+          <label class="mode-card">
+            <input type="radio" name="gameMode" value="sequential">
+            <div class="mode-card-body">
+              <strong>Sequenziale (Ordine di apertura)</strong>
+              <span>Indipendentemente dalla finestra cliccata, i contenuti vengono mostrati nell'ordine della lista qui sotto (1° click → 1° elemento, 2° click → 2° elemento, ecc.).</span>
+            </div>
+          </label>
+          <label class="mode-card">
+            <input type="radio" name="gameMode" value="fixed">
+            <div class="mode-card-body">
+              <strong>Preassegnata (Casella fissa)</strong>
+              <span>Ogni posizione della lista è legata direttamente al numero della casella (1° elemento → Casella #1, 14° → Casella #14, 25° → Portone #25).</span>
+            </div>
+          </label>
+        </div>
+      </section>
+
+      <!-- Pannello Stato Partita, Numeri e JSON -->
+      <section class="card" aria-labelledby="actions-heading">
+        <h2 id="actions-heading">Partita, Facciata &amp; JSON</h2>
+
+        <div class="status-row">
+          <span>Finestre attualmente aperte: <strong id="opened-status">0 / 25</strong></span>
+          <button id="btn-reset-game" type="button" class="btn btn-warning">Reset Partita (Chiudi tutte)</button>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="action-group">
+          <span class="group-label">Disposizione numeri sulle finestre (1–24):</span>
+          <div class="btn-row">
+            <button id="btn-shuffle-windows" type="button" class="btn btn-secondary">🔀 Rimescola numeri</button>
+            <button id="btn-sort-windows" type="button" class="btn btn-secondary">🔢 Ordina 1–24</button>
+          </div>
+          <p id="window-order-preview" class="order-preview"></p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="action-group">
+          <span class="group-label">Backup e Condivisione (JSON):</span>
+          <label class="checkbox-inline">
+            <input id="chk-export-state" type="checkbox" checked>
+            <span>Includi lo stato delle finestre già aperte nell'esportazione</span>
+          </label>
+          <div class="btn-row">
+            <button id="btn-export-json" type="button" class="btn btn-accent">⬇ Esporta JSON</button>
+            <button id="btn-import-json" type="button" class="btn btn-secondary">⬆ Importa JSON</button>
+            <input id="file-import-json" type="file" accept=".json,application/json" hidden>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Lista Drag & Drop degli Elementi -->
+    <section class="card items-section" aria-labelledby="items-heading">
+      <div class="items-header">
+        <div>
+          <h2 id="items-heading">Elenco Contenuti (<span id="items-count">0</span>)</h2>
+          <p id="items-hint" class="subtitle"></p>
+        </div>
+        <div class="btn-row">
+          <button id="btn-restore-defaults" type="button" class="btn btn-ghost">Ripristina predefiniti</button>
+          <button id="btn-add-item" type="button" class="btn btn-primary">+ Aggiungi elemento</button>
+        </div>
+      </div>
+
+      <ul id="items-list" class="items-list">
+        <!-- Generato dinamicamente da js/config.js -->
+      </ul>
+    </section>
+  </div>
+
+  <script src="./js/storage.js"></script>
+  <script src="./js/config.js"></script>
+</body>
+</html>

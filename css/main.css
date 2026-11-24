@@ -1,0 +1,834 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-night-top: #070d1f;
+  --bg-night-bottom: #17274d;
+  --house-wall: #8b2635;
+  --house-wall-dark: #6b1a27;
+  --house-trim: #f5e6c8;
+  --roof-color: #243447;
+  --snow-color: #f4f9fc;
+  --snow-shadow: #d5e5f0;
+  --gold: #ffd166;
+  --gold-bright: #ffe89e;
+  --warm-glow: #ffb703;
+  --window-closed-bg: #14223d;
+  --shutter-closed: #2b4538;
+  --shutter-open: #1f3329;
+  --door-closed: #4a2318;
+  --door-border: #e9d5b5;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: #040814;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  user-select: none;
+}
+
+/* Stage rigorosamente 16:9 con container-type: size per scalare tutto via cqw */
+#stage {
+  aspect-ratio: 16 / 9;
+  width: min(100vw, calc(100vh * (16 / 9)));
+  height: min(100vh, calc(100vw * (9 / 16)));
+  container-type: size;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--bg-night-top) 0%, var(--bg-night-bottom) 78%, #1e355e 100%);
+  box-shadow: 0 0 4cqw rgba(0, 0, 0, 0.85);
+}
+
+/* Sfondo cielo, luna, stelle e alberi */
+.sky {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.moon {
+  position: absolute;
+  top: 4.5cqw;
+  left: 7cqw;
+  width: 5.5cqw;
+  height: 5.5cqw;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fffdf0 0%, #ffe699 65%, #f2c94c 100%);
+  box-shadow: 0 0 2.5cqw rgba(255, 230, 153, 0.45);
+}
+
+.stars {
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(0.18cqw 0.18cqw at 14cqw 8cqw, #fff 90%, transparent),
+    radial-gradient(0.14cqw 0.14cqw at 23cqw 4.5cqw, #ffe8a3 90%, transparent),
+    radial-gradient(0.16cqw 0.16cqw at 34cqw 9.5cqw, #fff 90%, transparent),
+    radial-gradient(0.15cqw 0.15cqw at 68cqw 5cqw, #fff 90%, transparent),
+    radial-gradient(0.2cqw 0.2cqw at 79cqw 8.5cqw, #ffe8a3 90%, transparent),
+    radial-gradient(0.15cqw 0.15cqw at 88cqw 4cqw, #fff 90%, transparent),
+    radial-gradient(0.14cqw 0.14cqw at 93cqw 13cqw, #fff 90%, transparent),
+    radial-gradient(0.16cqw 0.16cqw at 8cqw 19cqw, #fff 90%, transparent),
+    radial-gradient(0.15cqw 0.15cqw at 85cqw 22cqw, #ffe8a3 90%, transparent),
+    radial-gradient(0.14cqw 0.14cqw at 12cqw 32cqw, #fff 90%, transparent),
+    radial-gradient(0.16cqw 0.16cqw at 91cqw 34cqw, #fff 90%, transparent);
+  opacity: 0.85;
+}
+
+.stars-2 {
+  background-image:
+    radial-gradient(0.12cqw 0.12cqw at 19cqw 14cqw, #fff 90%, transparent),
+    radial-gradient(0.13cqw 0.13cqw at 46cqw 3.2cqw, #fff 90%, transparent),
+    radial-gradient(0.12cqw 0.12cqw at 56cqw 6.5cqw, #ffe8a3 90%, transparent),
+    radial-gradient(0.13cqw 0.13cqw at 74cqw 15cqw, #fff 90%, transparent),
+    radial-gradient(0.12cqw 0.12cqw at 5cqw 26cqw, #fff 90%, transparent),
+    radial-gradient(0.12cqw 0.12cqw at 95cqw 27cqw, #fff 90%, transparent);
+  opacity: 0.6;
+}
+
+/* Abeti decorativi ai lati della casa */
+.tree {
+  position: absolute;
+  bottom: 4.2cqw;
+  width: 11cqw;
+  height: 22cqw;
+}
+
+.tree-left {
+  left: 4cqw;
+}
+
+.tree-right {
+  right: 4cqw;
+  transform: scaleX(-1);
+}
+
+.tree::before,
+.tree::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-style: solid;
+}
+
+.tree::before {
+  bottom: 2.5cqw;
+  border-width: 0 5.5cqw 14cqw 5.5cqw;
+  border-color: transparent transparent #173b2c transparent;
+  filter: drop-shadow(0 0.4cqw 0.6cqw rgba(0, 0, 0, 0.35));
+}
+
+.tree::after {
+  bottom: 9cqw;
+  border-width: 0 4.2cqw 11cqw 4.2cqw;
+  border-color: transparent transparent #1f4f3b transparent;
+}
+
+/* Barra superiore discreta */
+.hud-bar {
+  position: absolute;
+  top: 1.2cqw;
+  left: 1.8cqw;
+  right: 1.8cqw;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 15;
+  pointer-events: none;
+}
+
+.hud-status,
+.hud-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.8cqw;
+  pointer-events: auto;
+}
+
+.hud-pill {
+  padding: 0.45cqw 0.9cqw;
+  border-radius: 999cqw;
+  background: rgba(11, 19, 43, 0.72);
+  border: 0.12cqw solid rgba(255, 209, 102, 0.35);
+  color: #fff8e7;
+  font-size: 1.05cqw;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  backdrop-filter: blur(0.4cqw);
+}
+
+.hud-pill--muted {
+  color: #cfd9eb;
+  border-color: rgba(255, 255, 255, 0.18);
+  font-weight: 500;
+}
+
+.hud-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45cqw;
+  padding: 0.45cqw 0.95cqw;
+  border-radius: 999cqw;
+  border: 0.12cqw solid rgba(255, 255, 255, 0.25);
+  background: rgba(11, 19, 43, 0.76);
+  color: #f4f7fb;
+  font-size: 1.05cqw;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+  backdrop-filter: blur(0.4cqw);
+}
+
+.hud-btn:hover {
+  transform: translateY(-0.1cqw);
+  background: rgba(28, 43, 84, 0.92);
+  border-color: var(--gold);
+}
+
+.hud-btn--accent {
+  border-color: rgba(255, 209, 102, 0.55);
+  color: var(--gold-bright);
+}
+
+/* Struttura Casa dell'Avvento */
+.house-wrapper {
+  position: absolute;
+  left: 50%;
+  bottom: 3.8cqw;
+  transform: translateX(-50%);
+  width: 68cqw;
+  height: 49.5cqw;
+  z-index: 5;
+}
+
+/* Camino con fumo */
+.chimney {
+  position: absolute;
+  top: 1.2cqw;
+  right: 13cqw;
+  width: 4.5cqw;
+  height: 8cqw;
+  background: linear-gradient(90deg, #63202a 0%, #832c39 60%, #521821 100%);
+  border: 0.15cqw solid #3b1016;
+  border-radius: 0.3cqw 0.3cqw 0 0;
+  z-index: 2;
+}
+
+.chimney-snow {
+  position: absolute;
+  top: -0.55cqw;
+  left: -0.4cqw;
+  right: -0.4cqw;
+  height: 1.3cqw;
+  background: var(--snow-color);
+  border-radius: 0.6cqw;
+  box-shadow: inset 0 -0.25cqw 0 var(--snow-shadow);
+}
+
+.smoke {
+  position: absolute;
+  left: 50%;
+  top: -1.8cqw;
+  width: 1.6cqw;
+  height: 1.6cqw;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  transform: translateX(-50%);
+  animation: smokeRise 4.5s infinite ease-out;
+}
+
+.smoke-2 {
+  animation-delay: 2.2s;
+  width: 2cqw;
+  height: 2cqw;
+}
+
+@keyframes smokeRise {
+  0% {
+    transform: translate(-50%, 0) scale(0.7);
+    opacity: 0.45;
+  }
+  100% {
+    transform: translate(-20%, -5.5cqw) scale(2.1);
+    opacity: 0;
+  }
+}
+
+/* Tetto innevato */
+.roof {
+  position: relative;
+  width: 72cqw;
+  height: 11.2cqw;
+  margin-left: -2cqw;
+  z-index: 4;
+}
+
+.roof::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #2d4057 0%, #1c2838 100%);
+  clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+  filter: drop-shadow(0 0.6cqw 1cqw rgba(0, 0, 0, 0.45));
+}
+
+.roof-snow {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, #ffffff 0%, #e1eff8 100%);
+  clip-path: polygon(50% 0%, 100% 100%, 96% 100%, 50% 13%, 4% 100%, 0% 100%);
+}
+
+.roof-logo {
+  position: absolute;
+  left: 50%;
+  bottom: 1.2cqw;
+  z-index: 1;
+  width: 20cqw;
+  height: auto;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 0.3cqw 0.5cqw rgba(0, 0, 0, 0.45));
+}
+
+.roof-trim {
+  position: absolute;
+  bottom: -0.6cqw;
+  left: 0.8cqw;
+  right: 0.8cqw;
+  height: 1.2cqw;
+  background: var(--snow-color);
+  border-radius: 999cqw;
+  box-shadow: 0 0.35cqw 0.6cqw rgba(0, 0, 0, 0.35), inset 0 -0.25cqw 0 var(--snow-shadow);
+}
+
+.roof-garland {
+  position: absolute;
+  bottom: -1.15cqw;
+  left: 3.5cqw;
+  right: 3.5cqw;
+  height: 0.9cqw;
+  background-image: radial-gradient(circle at 1.2cqw 0.45cqw, #ffd166 0.28cqw, transparent 0.32cqw),
+    radial-gradient(circle at 3.6cqw 0.45cqw, #ef476f 0.25cqw, transparent 0.29cqw),
+    radial-gradient(circle at 6cqw 0.45cqw, #06d6a0 0.25cqw, transparent 0.29cqw);
+  background-size: 7.2cqw 0.9cqw;
+  background-repeat: repeat-x;
+}
+
+/* Facciata della casa a 4 piani */
+.house-facade {
+  position: relative;
+  width: 65cqw;
+  height: 38.3cqw;
+  margin: 0 auto;
+  padding: 2cqw 2.4cqw 0.6cqw;
+  background: linear-gradient(180deg, var(--house-wall) 0%, var(--house-wall-dark) 100%);
+  border-left: 0.35cqw solid #53131d;
+  border-right: 0.35cqw solid #53131d;
+  box-shadow: 0 1cqw 3cqw rgba(0, 0, 0, 0.55), inset 0 0.8cqw 1.2cqw rgba(0, 0, 0, 0.25);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1.1cqw;
+  z-index: 3;
+}
+
+/* Cornicioni sottili tra i piani */
+.floor {
+  display: grid;
+  gap: 1.5cqw;
+  align-items: center;
+  position: relative;
+}
+
+.floor--upper {
+  grid-template-columns: repeat(6, 1fr);
+  height: 7.3cqw;
+}
+
+.floor--ground {
+  grid-template-columns: 1fr 1fr 1fr 1.38fr 1fr 1fr 1fr;
+  height: 9.2cqw;
+  align-items: end;
+  padding-bottom: 0.1cqw;
+}
+
+/* Casella Finestra */
+.box-window {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  border: 0.22cqw solid var(--house-trim);
+  border-radius: 0.55cqw;
+  background: var(--window-closed-bg);
+  cursor: pointer;
+  perspective: 35cqw;
+  transition: transform 0.18s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 0.35cqw 0.6cqw rgba(0, 0, 0, 0.4), inset 0 0 0.8cqw rgba(0, 0, 0, 0.6);
+  overflow: visible;
+}
+
+.floor--ground .box-window {
+  height: 6.2cqw;
+  margin-bottom: 1.45cqw;
+  width: 88%;
+  justify-self: center;
+}
+
+.box-window:hover {
+  transform: translateY(-0.2cqw) scale(1.03);
+  border-color: var(--gold);
+  box-shadow: 0 0 1.2cqw rgba(255, 209, 102, 0.55);
+  z-index: 6;
+}
+
+.box-window:focus-visible,
+.box-door:focus-visible {
+  outline: 0.22cqw solid var(--gold-bright);
+  outline-offset: 0.2cqw;
+}
+
+/* Interno della finestra (vetro freddo da chiusa, luce calda da aperta) */
+.window-pane {
+  position: absolute;
+  inset: 0;
+  border-radius: 0.35cqw;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, transparent 45%),
+    linear-gradient(180deg, #172a4f 0%, #0f1c36 100%);
+  transition: background 0.35s ease, box-shadow 0.35s ease;
+}
+
+/* Croce dell'infisso */
+.window-pane::before,
+.window-pane::after {
+  content: "";
+  position: absolute;
+  background: rgba(245, 230, 200, 0.32);
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.window-pane::before {
+  width: 0.14cqw;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.window-pane::after {
+  height: 0.14cqw;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Ante/persiane laterali decorative */
+.shutter {
+  position: absolute;
+  top: -0.1cqw;
+  bottom: -0.1cqw;
+  width: 50%;
+  background: repeating-linear-gradient(
+    180deg,
+    var(--shutter-closed) 0,
+    var(--shutter-closed) 0.55cqw,
+    #1d3027 0.55cqw,
+    #1d3027 0.72cqw
+  );
+  border: 0.12cqw solid #16261f;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.35s ease;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.shutter--left {
+  left: 0;
+  transform-origin: left center;
+  border-radius: 0.3cqw 0 0 0.3cqw;
+}
+
+.shutter--right {
+  right: 0;
+  transform-origin: right center;
+  border-radius: 0 0.3cqw 0.3cqw 0;
+}
+
+/* Davanzale innevato */
+.window-sill {
+  position: absolute;
+  left: -0.45cqw;
+  right: -0.45cqw;
+  bottom: -0.55cqw;
+  height: 0.65cqw;
+  background: linear-gradient(180deg, #ffffff 0%, #d9e6ef 100%);
+  border-radius: 0.25cqw;
+  box-shadow: 0 0.2cqw 0.3cqw rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+
+/* Numero della casella */
+.box-number {
+  position: relative;
+  z-index: 3;
+  font-size: 2.05cqw;
+  font-weight: 800;
+  color: #fff5d6;
+  text-shadow: 0 0.15cqw 0.4cqw rgba(0, 0, 0, 0.85);
+  transition: all 0.25s ease;
+}
+
+.floor--ground .box-window .box-number {
+  font-size: 1.75cqw;
+}
+
+/* Stato APERTO della Finestra */
+.box-window.is-open {
+  border-color: var(--gold);
+  box-shadow: 0 0 1.4cqw rgba(255, 196, 54, 0.65), 0 0.35cqw 0.6cqw rgba(0, 0, 0, 0.45);
+}
+
+.box-window.is-open .window-pane {
+  background: radial-gradient(circle at 50% 45%, #fff9db 0%, #ffd166 48%, #f77f00 100%);
+  box-shadow: inset 0 0 1.2cqw rgba(255, 145, 0, 0.75);
+}
+
+.box-window.is-open .window-pane::before,
+.box-window.is-open .window-pane::after {
+  background: rgba(120, 53, 15, 0.3);
+}
+
+.box-window.is-open .shutter {
+  opacity: 0.96;
+  width: 24%;
+  background: repeating-linear-gradient(
+    180deg,
+    var(--shutter-open) 0,
+    var(--shutter-open) 0.55cqw,
+    #14241c 0.55cqw,
+    #14241c 0.72cqw
+  );
+}
+
+.box-window.is-open .shutter--left {
+  transform: translateX(-105%) skewY(6deg);
+}
+
+.box-window.is-open .shutter--right {
+  transform: translateX(105%) skewY(-6deg);
+}
+
+.box-window.is-open .box-number {
+  position: absolute;
+  top: 0.28cqw;
+  right: 0.28cqw;
+  font-size: 0.95cqw;
+  line-height: 1;
+  padding: 0.2cqw 0.38cqw;
+  border-radius: 999cqw;
+  background: rgba(92, 34, 10, 0.86);
+  color: var(--gold-bright);
+  text-shadow: none;
+  box-shadow: 0 0.1cqw 0.25cqw rgba(0, 0, 0, 0.35);
+}
+
+.box-open-icon {
+  position: relative;
+  z-index: 2;
+  font-size: 2.1cqw;
+  filter: drop-shadow(0 0.15cqw 0.3cqw rgba(145, 70, 0, 0.45));
+  animation: gentlePop 0.35s ease;
+}
+
+.floor--ground .box-window .box-open-icon {
+  font-size: 1.75cqw;
+}
+
+@keyframes gentlePop {
+  0% {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* PORTONE CENTRALE (Casella 25) */
+.box-door {
+  position: relative;
+  width: 92%;
+  height: 9.1cqw;
+  justify-self: center;
+  padding: 0;
+  border: 0.26cqw solid var(--door-border);
+  border-bottom: none;
+  border-radius: 4.5cqw 4.5cqw 0.25cqw 0.25cqw;
+  background: linear-gradient(180deg, #5c2b1d 0%, #3d1a11 100%);
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: 0 0.4cqw 0.8cqw rgba(0, 0, 0, 0.5), inset 0 0 1cqw rgba(0, 0, 0, 0.55);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.box-door:hover {
+  transform: translateY(-0.2cqw) scale(1.03);
+  border-color: var(--gold);
+  box-shadow: 0 0 1.4cqw rgba(255, 209, 102, 0.6);
+  z-index: 6;
+}
+
+.door-wreath {
+  width: 2.8cqw;
+  height: 2.8cqw;
+  border-radius: 50%;
+  border: 0.55cqw solid #235c3a;
+  box-shadow: 0 0.15cqw 0.3cqw rgba(0, 0, 0, 0.4), inset 0 0 0.25cqw #12331f;
+  position: relative;
+  margin-bottom: 0.35cqw;
+  transition: opacity 0.25s ease;
+}
+
+.door-wreath::after {
+  content: "";
+  position: absolute;
+  top: -0.55cqw;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0.7cqw;
+  height: 0.55cqw;
+  background: #d62828;
+  border-radius: 0.15cqw;
+}
+
+.door-knob {
+  position: absolute;
+  right: 1cqw;
+  top: 56%;
+  width: 0.6cqw;
+  height: 0.6cqw;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #fff3b0, #e09f3e);
+  box-shadow: 0 0.1cqw 0.2cqw rgba(0, 0, 0, 0.5);
+}
+
+.box-door .box-number {
+  font-size: 1.75cqw;
+  color: var(--gold-bright);
+  background: rgba(0, 0, 0, 0.45);
+  padding: 0.15cqw 0.55cqw;
+  border-radius: 999cqw;
+  border: 0.1cqw solid rgba(255, 209, 102, 0.45);
+}
+
+/* Stato APERTO del Portone */
+.box-door.is-open {
+  border-color: var(--gold);
+  background: radial-gradient(circle at 50% 60%, #fff8d6 0%, #ffca3a 45%, #f77f00 100%);
+  box-shadow: 0 0 1.8cqw rgba(255, 196, 54, 0.8), inset 0 0 1.2cqw rgba(217, 119, 6, 0.55);
+}
+
+.box-door.is-open .door-wreath,
+.box-door.is-open .door-knob {
+  opacity: 0;
+}
+
+.box-door.is-open .box-number {
+  position: absolute;
+  top: 0.75cqw;
+  font-size: 0.95cqw;
+  padding: 0.18cqw 0.45cqw;
+  background: rgba(92, 34, 10, 0.88);
+}
+
+/* Neve alla base */
+.snow-ground {
+  position: absolute;
+  left: -5cqw;
+  right: -5cqw;
+  bottom: -1cqw;
+  height: 5.2cqw;
+  background: linear-gradient(180deg, #ffffff 0%, #dceaf5 70%, #b9d1e4 100%);
+  border-radius: 50% 50% 0 0 / 2.2cqw 2.2cqw 0 0;
+  box-shadow: 0 -0.4cqw 1.2cqw rgba(255, 255, 255, 0.2);
+  z-index: 6;
+  pointer-events: none;
+}
+
+/* Modale 16:9-aware */
+.modal-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  background: rgba(4, 9, 24, 0.76);
+  backdrop-filter: blur(0.45cqw);
+  display: grid;
+  place-items: center;
+  padding: 3cqw;
+  animation: fadeIn 0.2s ease;
+}
+
+.modal-overlay[hidden] {
+  display: none;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-card {
+  position: relative;
+  width: 58cqw;
+  max-height: 44cqw;
+  background: linear-gradient(160deg, #162447 0%, #0f172a 100%);
+  border: 0.22cqw solid var(--gold);
+  border-radius: 1.4cqw;
+  padding: 2.6cqw 3.2cqw;
+  box-shadow: 0 1.8cqw 4.5cqw rgba(0, 0, 0, 0.7), 0 0 2.2cqw rgba(255, 209, 102, 0.25);
+  color: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  animation: modalPop 0.24s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes modalPop {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateY(1cqw);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modal-close {
+  position: absolute;
+  top: 1.4cqw;
+  right: 1.6cqw;
+  width: 2.8cqw;
+  height: 2.8cqw;
+  border-radius: 50%;
+  border: 0.14cqw solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  font-size: 1.8cqw;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.modal-close:hover {
+  background: rgba(239, 71, 111, 0.35);
+  border-color: #ef476f;
+}
+
+.modal-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.9cqw;
+  margin-bottom: 1.1cqw;
+}
+
+.modal-badge {
+  background: var(--gold);
+  color: #1e1b18;
+  font-size: 1.15cqw;
+  font-weight: 800;
+  padding: 0.35cqw 0.95cqw;
+  border-radius: 999cqw;
+  letter-spacing: 0.03em;
+}
+
+.modal-tag {
+  font-size: 1.05cqw;
+  font-weight: 600;
+  color: #a5b4fc;
+  background: rgba(165, 180, 252, 0.14);
+  border: 0.1cqw solid rgba(165, 180, 252, 0.3);
+  padding: 0.3cqw 0.8cqw;
+  border-radius: 999cqw;
+}
+
+.modal-tag.is-new {
+  color: #fde68a;
+  background: rgba(251, 191, 36, 0.15);
+  border-color: rgba(251, 191, 36, 0.35);
+}
+
+.modal-title {
+  margin: 0;
+  font-size: 2.65cqw;
+  line-height: 1.2;
+  color: #fff8e7;
+  font-weight: 800;
+  padding-right: 3cqw;
+}
+
+.modal-divider {
+  height: 0.14cqw;
+  background: linear-gradient(90deg, rgba(255, 209, 102, 0.65) 0%, rgba(255, 209, 102, 0.05) 100%);
+  margin: 1.3cqw 0;
+}
+
+.modal-description {
+  font-size: 1.55cqw;
+  line-height: 1.55;
+  color: #e2e8f0;
+  white-space: pre-wrap;
+  overflow-y: auto;
+  max-height: 20cqw;
+  padding-right: 0.5cqw;
+  user-select: text;
+}
+
+.modal-footer {
+  margin-top: 2cqw;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.modal-btn {
+  padding: 0.65cqw 1.8cqw;
+  border-radius: 0.65cqw;
+  border: none;
+  background: linear-gradient(135deg, #ffd166 0%, #f4a261 100%);
+  color: #1f160b;
+  font-size: 1.2cqw;
+  font-weight: 800;
+  cursor: pointer;
+  transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+.modal-btn:hover {
+  transform: translateY(-0.1cqw);
+  filter: brightness(1.06);
+}
