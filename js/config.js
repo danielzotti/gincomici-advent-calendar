@@ -80,8 +80,8 @@
     const f4 = o.slice(0, 6).join(', ');
     const f3 = o.slice(6, 12).join(', ');
     const f2 = o.slice(12, 18).join(', ');
-    const f1 = `${o.slice(18, 21).join(', ')} | [25] | ${o.slice(21, 24).join(', ')}`;
-    windowOrderPreviewEl.textContent = `Piano 4: [${f4}] • Piano 3: [${f3}] • Piano 2: [${f2}] • Terra: [${f1}]`;
+    const f1 = `${o.slice(18, 21).join(', ')}, |25|, ${o.slice(21, 24).join(', ')}`;
+    windowOrderPreviewEl.innerHTML = `Piano 4: ${f4}<br/>Piano 3: ${f3} <br/>Piano 2: ${f2} <br/>Terra: ${f1}`;
 
     // Items header hint
     itemsCountEl.textContent = String(currentData.items.length);

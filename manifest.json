@@ -1,7 +1,7 @@
 {
-  "name": "Calendario dell'Avvento 16:9",
+  "name": "Calendario dell'Avvento by Gin Comici",
   "short_name": "Avvento",
-  "description": "Calendario dell'Avvento interattivo in 16:9 con 24 finestre e portone centrale, modalità sequenziale o preassegnata, funzionante offline.",
+  "description": "Calendario dell'Avvento interattivo in 16:9 funzionante offline.",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",

@@ -1,7 +1,7 @@
 {
   "name": "gincomici-advent-calendar",
   "version": "1.0.0",
-  "description": "PWA Calendario dell'Avvento 16:9 in HTML, CSS e Vanilla JavaScript funzionante offline",
+  "description": "Calendario dell'Avvento by Gin Comici",
   "private": true,
   "scripts": {
     "start": "node server.js",
