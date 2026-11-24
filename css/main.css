@@ -46,8 +46,8 @@ body {
 /* Stage rigorosamente 16:9 con container-type: size per scalare tutto via cqw */
 #stage {
     aspect-ratio: 16 / 9;
-    width: min(100vw, calc(100vh * (16 / 9)));
-    height: min(100vh, calc(100vw * (9 / 16)));
+    width: min(100svw, calc(100svh * (16 / 9)));
+    height: min(100svh, calc(100svw * (9 / 16)));
     container-type: size;
     position: relative;
     overflow: hidden;
@@ -327,8 +327,8 @@ body {
 /* Luna interattiva con cappello e faccina */
 .moon-btn {
     position: absolute;
-    top: 4.5cqw;
-    left: 5.8cqw;
+    top: 9.5cqw;
+    left: 3.8cqw;
     width: 6.2cqw;
     height: 6.2cqw;
     padding: 0;
@@ -424,10 +424,14 @@ body {
     bottom: 1.75cqw;
     left: 50%;
     transform: translateX(-50%);
-    width: 1.7cqw;
+    width: 1.8cqw;
     height: 0.8cqw;
     border-bottom: 0.22cqw solid #5c3a0b;
     border-radius: 0 0 1cqw 1cqw;
+}
+
+.moon-btn:hover .moon-smile {
+    height: 1.8cqw;
 }
 
 /* ==================== BARRA HUD SUPERIORE ==================== */
@@ -1312,7 +1316,7 @@ body {
     padding: 0.38cqw 0.75cqw;
     border-radius: 0.75cqw;
     background: #0a0a0c;
-    border: 0.2cqw solid #ffd166;
+    border: 0.5cqw solid #ffd166;
     box-shadow: 0 0 1.3cqw rgba(255, 209, 102, 0.55), 0 0.4cqw 0.7cqw rgba(0, 0, 0, 0.55);
     z-index: 3;
 }
@@ -1365,9 +1369,9 @@ body {
 
 .marquee-bulbs {
     position: absolute;
-    inset: -0.32cqw;
+    inset: -0.9cqw;
     border-radius: 0.9cqw;
-    border: 0.22cqw dotted #fff3b0;
+    border: 1.25cqw dotted #fff3b0;
     pointer-events: none;
     animation: marqueeBlink 0.9s steps(2, start) infinite;
 }

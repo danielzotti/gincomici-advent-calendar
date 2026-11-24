@@ -13,7 +13,8 @@ const ASSETS_TO_CACHE = [
   './assets/icons/icon.svg',
   './assets/icons/icon-192.png',
   './assets/icons/icon-512.png',
-  './assets/brand/gin-comici-logo.png'
+  './assets/brand/gin-comici-logo.png',
+    './assets/brand/gin-comici-logo-text.png'
 ];
 
 self.addEventListener('install', (event) => {
