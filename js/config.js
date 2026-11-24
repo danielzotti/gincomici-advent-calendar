@@ -4,6 +4,8 @@
   const modeInputs = document.querySelectorAll('input[name="gameMode"]');
   const openedStatusEl = document.getElementById('opened-status');
   const resetGameBtn = document.getElementById('btn-reset-game');
+  const plaqueTextInput = document.getElementById('input-plaque-text');
+  const restorePlaqueBtn = document.getElementById('btn-restore-plaque');
   const shuffleWindowsBtn = document.getElementById('btn-shuffle-windows');
   const sortWindowsBtn = document.getElementById('btn-sort-windows');
   const windowOrderPreviewEl = document.getElementById('window-order-preview');
@@ -18,7 +20,50 @@
   const itemsHintEl = document.getElementById('items-hint');
   const toastEl = document.getElementById('toast');
 
+  const toggleListsBtn = document.getElementById('btn-toggle-lists');
+  const restoreAllListsBtn = document.getElementById('btn-restore-all-lists');
+  const listsEditorBodyEl = document.getElementById('lists-editor-body');
+  const listTabBtns = document.querySelectorAll('[data-list-tab]');
+  const listCountEls = document.querySelectorAll('[data-list-count]');
+  const listEditorHintEl = document.getElementById('list-editor-hint');
+  const listEditorTextareaEl = document.getElementById('list-editor-textarea');
+  const restoreCurrentListBtn = document.getElementById('btn-restore-current-list');
+
+  const LIST_META = {
+    openIcons: {
+      label: 'OPEN_ICONS',
+      hint: 'Icone o brevi simboli usati in modalità "Random" (separati da spazio, virgola o a capo).',
+      separator: 'space'
+    },
+    newOpenTags: {
+      label: 'NEW_OPEN_TAGS',
+      hint: 'Tag mostrati nel modale quando una finestra (1–24) viene aperta per la prima volta (uno per riga).',
+      separator: 'line'
+    },
+    funQuips: {
+      label: 'FUN_QUIPS',
+      hint: 'Frasi ironiche mostrate in basso nel modale (una per riga).',
+      separator: 'line'
+    },
+    snowmanLines: {
+      label: 'SNOWMAN_LINES',
+      hint: 'Fumetti del pupazzo di neve interattivo nel giardino sinistro (uno per riga).',
+      separator: 'line'
+    },
+    reindeerLines: {
+      label: 'REINDEER_LINES',
+      hint: 'Fumetti della renna Rudolph interattiva nel giardino destro (uno per riga).',
+      separator: 'line'
+    },
+    santaLines: {
+      label: 'SANTA_LINES',
+      hint: 'Fumetti di Babbo Natale incastrato nel camino (uno per riga).',
+      separator: 'line'
+    }
+  };
+
   let currentData = AdventStorage.loadData();
+  let activeListKey = 'openIcons';
   let draggedIndex = null;
   let toastTimer = null;
 
@@ -95,6 +140,17 @@
     const openedCount = Object.keys(currentData.state.openedBoxes || {}).length;
     openedStatusEl.textContent = `${openedCount} / 25`;
 
+    // Plaque text
+    const plaqueText = typeof currentData.plaqueText === 'string'
+      ? currentData.plaqueText
+      : AdventStorage.DEFAULT_PLAQUE_TEXT;
+    if (plaqueTextInput && document.activeElement !== plaqueTextInput) {
+      plaqueTextInput.value = plaqueText;
+    }
+    if (restorePlaqueBtn) {
+      restorePlaqueBtn.disabled = plaqueText === AdventStorage.DEFAULT_PLAQUE_TEXT;
+    }
+
     // Window order preview per floor
     const o = currentData.windowOrder;
     const f4 = o.slice(0, 6).join(', ');
@@ -119,6 +175,56 @@
       badgeEl.className = info.cls;
       badgeEl.textContent = info.label;
     });
+  }
+
+  function updateListCountBadges() {
+    const lists = currentData.customLists || AdventStorage.getDefaultLists();
+    listCountEls.forEach((badge) => {
+      const key = badge.dataset.listCount;
+      const arr = Array.isArray(lists[key]) ? lists[key] : [];
+      badge.textContent = String(arr.length);
+    });
+  }
+
+  function formatListForTextarea(key, arr) {
+    const meta = LIST_META[key];
+    if (!Array.isArray(arr)) return '';
+    return meta && meta.separator === 'space' ? arr.join(' ') : arr.join('\n');
+  }
+
+  function parseTextareaToList(key, rawText) {
+    const meta = LIST_META[key];
+    if (meta && meta.separator === 'space') {
+      return rawText
+        .split(/[\n,\s]+/)
+        .map((s) => s.trim())
+        .filter(Boolean);
+    }
+    return rawText
+      .split(/\r?\n/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
+
+  function renderListsEditor() {
+    const lists = currentData.customLists || AdventStorage.getDefaultLists();
+    const meta = LIST_META[activeListKey];
+
+    listTabBtns.forEach((btn) => {
+      const isActive = btn.dataset.listTab === activeListKey;
+      btn.classList.toggle('is-active', isActive);
+      btn.setAttribute('aria-selected', String(isActive));
+    });
+
+    if (listEditorHintEl && meta) {
+      listEditorHintEl.textContent = meta.hint;
+    }
+
+    if (listEditorTextareaEl) {
+      listEditorTextareaEl.value = formatListForTextarea(activeListKey, lists[activeListKey] || []);
+    }
+
+    updateListCountBadges();
   }
 
   function renderItems() {
@@ -154,7 +260,7 @@
 
       const titleInput = document.createElement('input');
       titleInput.type = 'text';
-      titleInput.className = 'field-input';
+      titleInput.className = 'field-input field-title';
       titleInput.placeholder = 'Titolo della sorpresa...';
       titleInput.value = item.title;
       titleInput.setAttribute('aria-label', `Titolo elemento ${index + 1}`);
@@ -162,6 +268,57 @@
         currentData.items[index].title = e.target.value;
         persist();
       });
+
+      const iconRow = document.createElement('div');
+      iconRow.className = 'item-icon-row';
+
+      const iconLabel = document.createElement('span');
+      iconLabel.className = 'item-icon-label';
+      iconLabel.textContent = 'Icona/Testo casella:';
+
+      const iconSelect = document.createElement('select');
+      iconSelect.className = 'field-select';
+      iconSelect.setAttribute('aria-label', `Modalità icona elemento ${index + 1}`);
+
+      const iconOptions = [
+        { value: 'random', text: '🎲 Random (da OPEN_ICONS)' },
+        { value: 'custom', text: '✏️ Emoji o Testo breve' },
+        { value: 'hidden', text: '🚫 Nascondi' }
+      ];
+      iconOptions.forEach((opt) => {
+        const optionEl = document.createElement('option');
+        optionEl.value = opt.value;
+        optionEl.textContent = opt.text;
+        iconSelect.appendChild(optionEl);
+      });
+      iconSelect.value = item.iconMode || 'random';
+
+      const customIconInput = document.createElement('input');
+      customIconInput.type = 'text';
+      customIconInput.className = 'field-input field-icon-custom';
+      customIconInput.maxLength = 24;
+      customIconInput.placeholder = 'Es. 🎁 oppure GIN 2x1';
+      customIconInput.value = item.customIcon || '';
+      customIconInput.hidden = iconSelect.value !== 'custom';
+      customIconInput.setAttribute('aria-label', `Emoji o testo breve elemento ${index + 1}`);
+      customIconInput.addEventListener('input', (e) => {
+        currentData.items[index].customIcon = e.target.value;
+        persist();
+      });
+
+      iconSelect.addEventListener('change', (e) => {
+        const mode = e.target.value;
+        currentData.items[index].iconMode = mode;
+        customIconInput.hidden = mode !== 'custom';
+        persist();
+        if (mode === 'custom') {
+          customIconInput.focus();
+        }
+      });
+
+      iconRow.appendChild(iconLabel);
+      iconRow.appendChild(iconSelect);
+      iconRow.appendChild(customIconInput);
 
       const descInput = document.createElement('textarea');
       descInput.className = 'field-textarea';
@@ -174,6 +331,7 @@
       });
 
       fields.appendChild(titleInput);
+      fields.appendChild(iconRow);
       fields.appendChild(descInput);
 
       const controls = document.createElement('div');
@@ -270,6 +428,63 @@
     showToast('Elemento rimosso.');
   }
 
+  // Listener Editor Liste Globali
+  if (toggleListsBtn && listsEditorBodyEl) {
+    toggleListsBtn.addEventListener('click', () => {
+      const isExpanded = !listsEditorBodyEl.hidden;
+      listsEditorBodyEl.hidden = isExpanded;
+      if (restoreAllListsBtn) {
+        restoreAllListsBtn.hidden = isExpanded;
+      }
+      toggleListsBtn.setAttribute('aria-expanded', String(!isExpanded));
+      toggleListsBtn.textContent = isExpanded ? 'Personalizza liste (6) ▾' : 'Nascondi liste ▴';
+    });
+  }
+
+  listTabBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const nextKey = btn.dataset.listTab;
+      if (!nextKey || !LIST_META[nextKey]) return;
+      activeListKey = nextKey;
+      renderListsEditor();
+    });
+  });
+
+  if (listEditorTextareaEl) {
+    listEditorTextareaEl.addEventListener('input', (e) => {
+      if (!currentData.customLists) {
+        currentData.customLists = AdventStorage.getDefaultLists();
+      }
+      currentData.customLists[activeListKey] = parseTextareaToList(activeListKey, e.target.value);
+      persist();
+      updateListCountBadges();
+    });
+  }
+
+  if (restoreCurrentListBtn) {
+    restoreCurrentListBtn.addEventListener('click', () => {
+      const defaults = AdventStorage.getDefaultLists();
+      if (!currentData.customLists) {
+        currentData.customLists = AdventStorage.getDefaultLists();
+      }
+      currentData.customLists[activeListKey] = defaults[activeListKey].slice();
+      persist();
+      renderListsEditor();
+      showToast(`Lista ${LIST_META[activeListKey].label} ripristinata ai valori predefiniti.`);
+    });
+  }
+
+  if (restoreAllListsBtn) {
+    restoreAllListsBtn.addEventListener('click', () => {
+      if (window.confirm('Ripristinare tutte le 6 liste (icone, tag, battute e frasi personaggi) ai valori predefiniti?')) {
+        currentData.customLists = AdventStorage.getDefaultLists();
+        persist();
+        renderListsEditor();
+        showToast('Tutte le liste predefinite sono state ripristinate.');
+      }
+    });
+  }
+
   // Listener cambio modalità
   modeInputs.forEach((input) => {
     input.addEventListener('change', (e) => {
@@ -298,6 +513,25 @@
     }
   });
 
+  // Testo targa sulla facciata
+  if (plaqueTextInput) {
+    plaqueTextInput.addEventListener('input', (e) => {
+      currentData.plaqueText = e.target.value;
+      persist();
+    });
+  }
+
+  if (restorePlaqueBtn) {
+    restorePlaqueBtn.addEventListener('click', () => {
+      currentData.plaqueText = AdventStorage.DEFAULT_PLAQUE_TEXT;
+      persist();
+      if (plaqueTextInput) {
+        plaqueTextInput.value = currentData.plaqueText;
+      }
+      showToast('Testo della targa ripristinato al valore predefinito.');
+    });
+  }
+
   // Disposizione numeri finestre
   shuffleWindowsBtn.addEventListener('click', () => {
     currentData = AdventStorage.shuffleWindows();
@@ -317,11 +551,13 @@
     currentData.items.push({
       id: `item-${Date.now()}-${nextNum}`,
       title: `Nuovo elemento #${nextNum}`,
-      description: ''
+      description: '',
+      iconMode: 'random',
+      customIcon: ''
     });
     persist();
     renderItems();
-    const lastInput = itemsListEl.lastElementChild?.querySelector('.field-input');
+    const lastInput = itemsListEl.lastElementChild?.querySelector('.field-title');
     if (lastInput) {
       lastInput.focus();
       lastInput.select();
@@ -334,6 +570,7 @@
     if (window.confirm('Ripristinare i 25 elementi predefiniti e resettare la configurazione attuale?')) {
       currentData = AdventStorage.saveData(AdventStorage.createDefaultData());
       renderMeta();
+      renderListsEditor();
       renderItems();
       showToast('Configurazione predefinita ripristinata.');
     }
@@ -370,6 +607,7 @@
       try {
         currentData = AdventStorage.importFromJSON(String(reader.result));
         renderMeta();
+        renderListsEditor();
         renderItems();
         showToast('Configurazione importata con successo!');
       } catch (err) {
@@ -380,6 +618,7 @@
   });
 
   renderMeta();
+  renderListsEditor();
   renderItems();
   registerServiceWorker();
 })();
