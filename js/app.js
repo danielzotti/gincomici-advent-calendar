@@ -220,8 +220,8 @@
 
   document.addEventListener('fullscreenchange', () => {
     fullscreenBtn.innerHTML = document.fullscreenElement
-      ? '<span aria-hidden="true">✕</span> Esci schermo intero'
-      : '<span aria-hidden="true">⛶</span> Schermo intero';
+      ? '<span aria-hidden="true">✕</span>'
+      : '<span aria-hidden="true">⛶</span>';
   });
 
   window.addEventListener('storage', (event) => {

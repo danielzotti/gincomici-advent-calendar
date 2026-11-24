@@ -1,4 +1,4 @@
-const CACHE_NAME = 'advent-calendar-pwa-v2';
+const CACHE_NAME = 'advent-calendar-pwa-v3';
 
 const ASSETS_TO_CACHE = [
   './',
