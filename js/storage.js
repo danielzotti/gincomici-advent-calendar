@@ -131,6 +131,72 @@
     }
   ];
 
+  const DEFAULT_LISTS = {
+    openIcons: [
+      '🎤', '🍸', '🎄', '🎅', '🎁', '🦌', '🔔', '🍾',
+      '🧦', '⛄', '⭐', '🍪', '🎺', '🎭', '❄️', '🕯️'
+    ],
+    newOpenTags: [
+      '🎤 Sul palco adesso!',
+      '🍸 Gin & Jingle!',
+      '🎅 Approvato dagli Elfi!',
+      '🦌 Rudolph approva!',
+      '🎄 Follia Estratta!'
+    ],
+    funQuips: [
+      'Consiglio: leggila con tono solenne da Oscar.',
+      'Effetto collaterale: risate incontrollate garantite.',
+      'Approvato dal Comitato Feste Disastrose.',
+      '100% spirito natalizio, 0% dignità.',
+      'Se qualcuno non ride, paga il prossimo giro!',
+      'Garantito dai Gin Comici del Polo Nord.'
+    ],
+    snowmanLines: [
+      'È acqua tonica nel bicchiere, lo giuro! 🍸',
+      'Non mi sto sciogliendo, è l’ansia da palco!',
+      'Qualcuno ha visto un microfono più freddo? 🎤',
+      'Un altro giro di Gin-gle Bells!',
+      'Sono fatto di neve, ma spacco di brutto! ⛄'
+    ],
+    reindeerLines: [
+      'Il naso rosso è solo colpa del vin brulé! 🔴',
+      'Ho parcheggiato la slitta in doppia fila!',
+      'Non toccare il naso, è in modalità turbo!',
+      'Gli elfi hanno chiesto l’aumento in panettoni.',
+      'Quest’anno traino solo verso l’open bar! 🦌'
+    ],
+    santaLines: [
+      'Troppo pandoro con il mascarpone! 🎅',
+      'NON ACCENDETE IL CAMINO!!',
+      'Mi sono incastrato sulla casella 14!',
+      'Qualcuno tiri le gambe... piano però!',
+      'Ho perso la lista dei buoni nel camino!'
+    ]
+  };
+
+  const DEFAULT_PLAQUE_TEXT = 'Calendario dell\'evento';
+
+  const VALID_ICON_MODES = new Set(['random', 'custom', 'hidden']);
+
+  function cloneDefaultLists() {
+    return {
+      openIcons: DEFAULT_LISTS.openIcons.slice(),
+      newOpenTags: DEFAULT_LISTS.newOpenTags.slice(),
+      funQuips: DEFAULT_LISTS.funQuips.slice(),
+      snowmanLines: DEFAULT_LISTS.snowmanLines.slice(),
+      reindeerLines: DEFAULT_LISTS.reindeerLines.slice(),
+      santaLines: DEFAULT_LISTS.santaLines.slice()
+    };
+  }
+
+  function cloneDefaultItems() {
+    return DEFAULT_ITEMS.map((item) => ({
+      ...item,
+      iconMode: 'random',
+      customIcon: ''
+    }));
+  }
+
   function createOrderedNumbers() {
     return Array.from({ length: 24 }, (_, i) => i + 1);
   }
@@ -148,8 +214,10 @@
     return {
       version: 1,
       mode: 'sequential', // 'sequential' | 'fixed'
+      plaqueText: DEFAULT_PLAQUE_TEXT,
       windowOrder: shuffleArray(createOrderedNumbers()),
-      items: DEFAULT_ITEMS.map((item) => ({ ...item })),
+      items: cloneDefaultItems(),
+      customLists: cloneDefaultLists(),
       state: {
         openedBoxes: {},
         sequentialCursor: 0
@@ -166,15 +234,45 @@
     return valid ? order.slice() : shuffleArray(createOrderedNumbers());
   }
 
+  function sanitizeIconMode(mode) {
+    return VALID_ICON_MODES.has(mode) ? mode : 'random';
+  }
+
   function sanitizeItems(items) {
     if (!Array.isArray(items) || items.length === 0) {
-      return DEFAULT_ITEMS.map((item) => ({ ...item }));
+      return cloneDefaultItems();
     }
     return items.map((item, idx) => ({
       id: typeof item.id === 'string' && item.id.trim() ? item.id.trim() : `item-${Date.now()}-${idx}`,
       title: typeof item.title === 'string' ? item.title : '',
-      description: typeof item.description === 'string' ? item.description : ''
+      description: typeof item.description === 'string' ? item.description : '',
+      iconMode: sanitizeIconMode(item.iconMode),
+      customIcon: typeof item.customIcon === 'string' ? item.customIcon : ''
     }));
+  }
+
+  function sanitizeStringArray(arr, fallback) {
+    if (!Array.isArray(arr)) {
+      return fallback.slice();
+    }
+    return arr
+      .filter((val) => typeof val === 'string')
+      .map((val) => val.trim())
+      .filter(Boolean);
+  }
+
+  function sanitizeCustomLists(rawLists) {
+    if (!rawLists || typeof rawLists !== 'object') {
+      return cloneDefaultLists();
+    }
+    return {
+      openIcons: sanitizeStringArray(rawLists.openIcons, DEFAULT_LISTS.openIcons),
+      newOpenTags: sanitizeStringArray(rawLists.newOpenTags, DEFAULT_LISTS.newOpenTags),
+      funQuips: sanitizeStringArray(rawLists.funQuips, DEFAULT_LISTS.funQuips),
+      snowmanLines: sanitizeStringArray(rawLists.snowmanLines, DEFAULT_LISTS.snowmanLines),
+      reindeerLines: sanitizeStringArray(rawLists.reindeerLines, DEFAULT_LISTS.reindeerLines),
+      santaLines: sanitizeStringArray(rawLists.santaLines, DEFAULT_LISTS.santaLines)
+    };
   }
 
   function sanitizeData(raw) {
@@ -183,8 +281,10 @@
     }
 
     const mode = raw.mode === 'fixed' ? 'fixed' : 'sequential';
+    const plaqueText = typeof raw.plaqueText === 'string' ? raw.plaqueText : DEFAULT_PLAQUE_TEXT;
     const windowOrder = sanitizeWindowOrder(raw.windowOrder);
     const items = sanitizeItems(raw.items);
+    const customLists = sanitizeCustomLists(raw.customLists);
 
     const rawState = raw.state && typeof raw.state === 'object' ? raw.state : {};
     const rawOpened = rawState.openedBoxes && typeof rawState.openedBoxes === 'object' ? rawState.openedBoxes : {};
@@ -199,6 +299,8 @@
           itemId: typeof entry.itemId === 'string' ? entry.itemId : null,
           title: typeof entry.title === 'string' ? entry.title : '',
           description: typeof entry.description === 'string' ? entry.description : '',
+          iconMode: sanitizeIconMode(entry.iconMode),
+          resolvedIcon: typeof entry.resolvedIcon === 'string' ? entry.resolvedIcon : '',
           openedAt: typeof entry.openedAt === 'string' ? entry.openedAt : new Date().toISOString()
         };
       }
@@ -212,8 +314,10 @@
     return {
       version: 1,
       mode,
+      plaqueText,
       windowOrder,
       items,
+      customLists,
       state: {
         openedBoxes,
         sequentialCursor
@@ -243,6 +347,45 @@
     return sanitized;
   }
 
+  function getEffectiveOpenIcons(data) {
+    const list = data && data.customLists && Array.isArray(data.customLists.openIcons)
+      ? data.customLists.openIcons
+      : [];
+    return list.length > 0 ? list : DEFAULT_LISTS.openIcons;
+  }
+
+  function pickRandomOpenIcon(data) {
+    const icons = getEffectiveOpenIcons(data);
+    return icons[Math.floor(Math.random() * icons.length)];
+  }
+
+  function pickDeterministicOpenIcon(boxNumber, data) {
+    const icons = getEffectiveOpenIcons(data);
+    const idx = Math.max(0, boxNumber - 1) % icons.length;
+    return icons[idx];
+  }
+
+  function resolveItemIcon(item, existing, boxNumber, data) {
+    const mode = sanitizeIconMode(item ? item.iconMode : existing && existing.iconMode);
+    if (mode === 'hidden') {
+      return { iconMode: 'hidden', resolvedIcon: '' };
+    }
+    if (mode === 'custom') {
+      const custom = item && typeof item.customIcon === 'string' ? item.customIcon.trim() : '';
+      if (custom) {
+        return { iconMode: 'custom', resolvedIcon: custom };
+      }
+      if (existing && existing.resolvedIcon) {
+        return { iconMode: 'custom', resolvedIcon: existing.resolvedIcon };
+      }
+      return { iconMode: 'custom', resolvedIcon: pickDeterministicOpenIcon(boxNumber, data) };
+    }
+    if (existing && existing.iconMode === 'random' && existing.resolvedIcon) {
+      return { iconMode: 'random', resolvedIcon: existing.resolvedIcon };
+    }
+    return { iconMode: 'random', resolvedIcon: pickDeterministicOpenIcon(boxNumber, data) };
+  }
+
   function resolveOpenedContent(data, boxNumber) {
     const key = String(boxNumber);
     const existing = data.state.openedBoxes[key];
@@ -251,24 +394,47 @@
     if (existing.itemId) {
       const found = data.items.find((it) => it.id === existing.itemId);
       if (found) {
-        return { title: found.title, description: found.description, alreadyOpened: true };
+        const iconInfo = resolveItemIcon(found, existing, boxNumber, data);
+        return {
+          title: found.title,
+          description: found.description,
+          iconMode: iconInfo.iconMode,
+          resolvedIcon: iconInfo.resolvedIcon,
+          alreadyOpened: true
+        };
       }
     }
 
     if (existing.title || existing.description) {
+      const iconInfo = resolveItemIcon(null, existing, boxNumber, data);
       return {
         title: existing.title || 'Sorpresa',
         description: existing.description || '',
+        iconMode: iconInfo.iconMode,
+        resolvedIcon: iconInfo.resolvedIcon,
         alreadyOpened: true
       };
     }
 
     const byIndex = data.items[existing.itemIndex];
     if (byIndex) {
-      return { title: byIndex.title, description: byIndex.description, alreadyOpened: true };
+      const iconInfo = resolveItemIcon(byIndex, existing, boxNumber, data);
+      return {
+        title: byIndex.title,
+        description: byIndex.description,
+        iconMode: iconInfo.iconMode,
+        resolvedIcon: iconInfo.resolvedIcon,
+        alreadyOpened: true
+      };
     }
 
-    return { title: 'Casella aperta', description: 'Contenuto non più presente nella lista.', alreadyOpened: true };
+    return {
+      title: 'Casella aperta',
+      description: 'Contenuto non più presente nella lista.',
+      iconMode: 'random',
+      resolvedIcon: pickDeterministicOpenIcon(boxNumber, data),
+      alreadyOpened: true
+    };
   }
 
   function openBox(boxNumber) {
@@ -297,14 +463,26 @@
       : {
           id: `fallback-${boxNumber}`,
           title: `Casella #${boxNumber}`,
-          description: 'Nessun contenuto configurato per questa posizione. Aggiungi altri elementi in Configurazione.'
+          description: 'Nessun contenuto configurato per questa posizione. Aggiungi altri elementi in Configurazione.',
+          iconMode: 'random',
+          customIcon: ''
         };
+
+    const iconMode = sanitizeIconMode(resolvedItem.iconMode);
+    let resolvedIcon = '';
+    if (iconMode === 'custom') {
+      resolvedIcon = (resolvedItem.customIcon || '').trim() || pickRandomOpenIcon(data);
+    } else if (iconMode === 'random') {
+      resolvedIcon = pickRandomOpenIcon(data);
+    }
 
     data.state.openedBoxes[key] = {
       itemIndex,
       itemId: resolvedItem.id,
       title: resolvedItem.title,
       description: resolvedItem.description,
+      iconMode,
+      resolvedIcon,
       openedAt: new Date().toISOString()
     };
 
@@ -314,6 +492,8 @@
       content: {
         title: resolvedItem.title,
         description: resolvedItem.description,
+        iconMode,
+        resolvedIcon,
         alreadyOpened: false
       }
     };
@@ -343,8 +523,10 @@
     const payload = {
       version: data.version,
       mode: data.mode,
+      plaqueText: data.plaqueText,
       windowOrder: data.windowOrder,
-      items: data.items
+      items: data.items,
+      customLists: data.customLists
     };
     if (includeState) {
       payload.state = data.state;
@@ -366,9 +548,13 @@
   global.AdventStorage = {
     STORAGE_KEY,
     DEFAULT_ITEMS,
+    DEFAULT_LISTS,
+    DEFAULT_PLAQUE_TEXT,
+    getDefaultLists: cloneDefaultLists,
     loadData,
     saveData,
     openBox,
+    resolveOpenedContent,
     resetGame,
     shuffleWindows,
     orderWindowsSequentially,

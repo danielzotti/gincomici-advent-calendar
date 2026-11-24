@@ -60,6 +60,23 @@
         <div class="divider"></div>
 
         <div class="action-group">
+          <label for="input-plaque-text" class="group-label">Testo targa sulla facciata:</label>
+          <div class="inline-input-row">
+            <input
+              id="input-plaque-text"
+              type="text"
+              class="field-input"
+              maxlength="80"
+              placeholder="Calendario dell'evento"
+            >
+            <button id="btn-restore-plaque" type="button" class="btn btn-ghost btn-sm">Ripristina</button>
+          </div>
+          <p class="field-hint">Lascia vuoto per nascondere la targa dalla facciata della casa.</p>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="action-group">
           <span class="group-label">Disposizione numeri sulle finestre (1–24):</span>
           <div class="btn-row">
             <button id="btn-shuffle-windows" type="button" class="btn btn-secondary">🔀 Rimescola numeri</button>
@@ -84,6 +101,52 @@
         </div>
       </section>
     </div>
+
+    <!-- Pannello Liste Predefinite (Emoji, Tag, Battute, Personaggi) -->
+    <section class="card defaults-section" aria-labelledby="defaults-heading">
+      <div class="defaults-header">
+        <div>
+          <h2 id="defaults-heading">🎨 Testi, Emoji &amp; Battute Globali</h2>
+          <p class="subtitle">Personalizza le liste usate per le icone random, i tag/battute del modale e i fumetti dei personaggi.</p>
+        </div>
+        <div class="btn-row">
+          <button id="btn-restore-all-lists" type="button" class="btn btn-ghost" hidden>Ripristina tutte le liste</button>
+          <button id="btn-toggle-lists" type="button" class="btn btn-secondary" aria-expanded="false" aria-controls="lists-editor-body">
+            Personalizza liste (6) ▾
+          </button>
+        </div>
+      </div>
+
+      <div id="lists-editor-body" class="lists-editor-body" hidden>
+        <div class="list-tabs" role="tablist" aria-label="Liste personalizzabili">
+          <button type="button" class="list-tab is-active" role="tab" aria-selected="true" data-list-tab="openIcons">
+            🎨 OPEN_ICONS <span class="tab-count" data-list-count="openIcons">0</span>
+          </button>
+          <button type="button" class="list-tab" role="tab" aria-selected="false" data-list-tab="newOpenTags">
+            🏷️ NEW_OPEN_TAGS <span class="tab-count" data-list-count="newOpenTags">0</span>
+          </button>
+          <button type="button" class="list-tab" role="tab" aria-selected="false" data-list-tab="funQuips">
+            💬 FUN_QUIPS <span class="tab-count" data-list-count="funQuips">0</span>
+          </button>
+          <button type="button" class="list-tab" role="tab" aria-selected="false" data-list-tab="snowmanLines">
+            ⛄ SNOWMAN_LINES <span class="tab-count" data-list-count="snowmanLines">0</span>
+          </button>
+          <button type="button" class="list-tab" role="tab" aria-selected="false" data-list-tab="reindeerLines">
+            🦌 REINDEER_LINES <span class="tab-count" data-list-count="reindeerLines">0</span>
+          </button>
+          <button type="button" class="list-tab" role="tab" aria-selected="false" data-list-tab="santaLines">
+            🎅 SANTA_LINES <span class="tab-count" data-list-count="santaLines">0</span>
+          </button>
+        </div>
+
+        <div class="list-panel-meta">
+          <p id="list-editor-hint" class="subtitle"></p>
+          <button id="btn-restore-current-list" type="button" class="btn btn-ghost btn-sm">Ripristina questa lista</button>
+        </div>
+
+        <textarea id="list-editor-textarea" class="field-textarea list-editor-textarea" rows="6" aria-label="Contenuto lista selezionata"></textarea>
+      </div>
+    </section>
 
     <!-- Lista Drag & Drop degli Elementi -->
     <section class="card items-section" aria-labelledby="items-heading">

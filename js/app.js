@@ -3,6 +3,8 @@
 
   const stageEl = document.getElementById('stage');
   const facadeEl = document.getElementById('house-facade');
+  const housePlaqueEl = document.getElementById('house-plaque');
+  const housePlaqueTextEl = document.getElementById('house-plaque-text');
   const openedCounterEl = document.getElementById('opened-counter');
   const openedProgressFillEl = document.getElementById('opened-progress-fill');
   const fullscreenBtn = document.getElementById('btn-fullscreen');
@@ -29,51 +31,40 @@
   const santaBubbleEl = document.getElementById('bubble-santa');
   const moonBtn = document.getElementById('easter-moon');
 
-  const OPEN_ICONS = [
-    '🎤', '🍸', '🎄', '🎅', '🎁', '🦌', '🔔', '🍾',
-    '🧦', '⛄', '⭐', '🍪', '🎺', '🎭', '❄️', '🕯️'
-  ];
+  function getCustomLists() {
+    const data = AdventStorage.loadData();
+    return data.customLists || AdventStorage.getDefaultLists();
+  }
 
-  const NEW_OPEN_TAGS = [
-    '🎤 Sul palco adesso!',
-    '🍸 Gin & Jingle!',
-    '🎅 Approvato dagli Elfi!',
-    '🦌 Rudolph approva!',
-    '🎄 Follia Estratta!'
-  ];
+  function countGraphemes(text) {
+    if (!text) return 0;
+    if (typeof Intl !== 'undefined' && typeof Intl.Segmenter === 'function') {
+      const segmenter = new Intl.Segmenter('it', { granularity: 'grapheme' });
+      let count = 0;
+      for (const segment of segmenter.segment(text)) {
+        if (segment.segment) count += 1;
+      }
+      return count;
+    }
+    return Array.from(text.replace(/[\uFE0F\u200D]/g, '')).length;
+  }
 
-  const FUN_QUIPS = [
-    'Consiglio: leggila con tono solenne da Oscar.',
-    'Effetto collaterale: risate incontrollate garantite.',
-    'Approvato dal Comitato Feste Disastrose.',
-    '100% spirito natalizio, 0% dignità.',
-    'Se qualcuno non ride, paga il prossimo giro!',
-    'Garantito dai Gin Comici del Polo Nord.'
-  ];
+  function createBoxOpenIconElement(resolvedIcon) {
+    if (!resolvedIcon) return null;
+    const icon = document.createElement('span');
+    icon.className = 'box-open-icon';
+    icon.setAttribute('aria-hidden', 'true');
+    icon.textContent = resolvedIcon;
 
-  const SNOWMAN_LINES = [
-    'È acqua tonica nel bicchiere, lo giuro! 🍸',
-    'Non mi sto sciogliendo, è l’ansia da palco!',
-    'Qualcuno ha visto un microfono più freddo? 🎤',
-    'Un altro giro di Gin-gle Bells!',
-    'Sono fatto di neve, ma spacco di brutto! ⛄'
-  ];
+    const len = countGraphemes(resolvedIcon);
+    if (len >= 7) {
+      icon.classList.add('box-open-icon--long-text');
+    } else if (len >= 3) {
+      icon.classList.add('box-open-icon--short-text');
+    }
 
-  const REINDEER_LINES = [
-    'Il naso rosso è solo colpa del vin brulé! 🔴',
-    'Ho parcheggiato la slitta in doppia fila!',
-    'Non toccare il naso, è in modalità turbo!',
-    'Gli elfi hanno chiesto l’aumento in panettoni.',
-    'Quest’anno traino solo verso l’open bar! 🦌'
-  ];
-
-  const SANTA_LINES = [
-    'AIUTO! Troppo pandoro con il mascarpone! 🎅',
-    'NON ACCENDETE IL CAMINO!!',
-    'Mi sono incastrato sulla casella 14!',
-    'Qualcuno tiri le gambe... piano però!',
-    'Ho perso la lista dei buoni nel camino!'
-  ];
+    return icon;
+  }
 
   let lastFocusedTrigger = null;
   let soundEnabled = true;
@@ -297,7 +288,8 @@
     setTimeout(() => el.classList.remove(cls), durationMs);
   }
 
-  function createWindowElement(boxNumber, isOpen) {
+  function createWindowElement(boxNumber, openedContent) {
+    const isOpen = Boolean(openedContent);
     const btn = document.createElement('button');
     btn.type = 'button';
     btn.className = `box-window${isOpen ? ' is-open' : ''}`;
@@ -310,12 +302,11 @@
     const pane = document.createElement('div');
     pane.className = 'window-pane';
 
-    if (isOpen) {
-      const icon = document.createElement('span');
-      icon.className = 'box-open-icon';
-      icon.setAttribute('aria-hidden', 'true');
-      icon.textContent = OPEN_ICONS[(boxNumber - 1) % OPEN_ICONS.length];
-      pane.appendChild(icon);
+    if (isOpen && openedContent.iconMode !== 'hidden' && openedContent.resolvedIcon) {
+      const iconEl = createBoxOpenIconElement(openedContent.resolvedIcon);
+      if (iconEl) {
+        pane.appendChild(iconEl);
+      }
     }
 
     const num = document.createElement('span');
@@ -350,8 +341,9 @@
     return btn;
   }
 
-  function createDoorElement(isOpen) {
+  function createDoorElement(openedContent) {
     const doorNumber = 25;
+    const isOpen = Boolean(openedContent);
     const slot = document.createElement('div');
     slot.className = 'door-slot';
 
@@ -383,12 +375,11 @@
     btn.appendChild(wreath);
     btn.appendChild(knob);
 
-    if (isOpen) {
-      const icon = document.createElement('span');
-      icon.className = 'box-open-icon';
-      icon.setAttribute('aria-hidden', 'true');
-      icon.textContent = '🎄';
-      btn.appendChild(icon);
+    if (isOpen && openedContent.iconMode !== 'hidden' && openedContent.resolvedIcon) {
+      const iconEl = createBoxOpenIconElement(openedContent.resolvedIcon);
+      if (iconEl) {
+        btn.appendChild(iconEl);
+      }
     }
 
     const num = document.createElement('span');
@@ -403,11 +394,22 @@
     return slot;
   }
 
+  function renderPlaque(data) {
+    if (!housePlaqueEl || !housePlaqueTextEl) return;
+    const raw = typeof data.plaqueText === 'string'
+      ? data.plaqueText
+      : AdventStorage.DEFAULT_PLAQUE_TEXT;
+    const text = raw.trim();
+    housePlaqueEl.hidden = text.length === 0;
+    housePlaqueTextEl.textContent = text;
+  }
+
   function renderHouse() {
     const data = AdventStorage.loadData();
     const opened = data.state.openedBoxes || {};
     const order = data.windowOrder;
 
+    renderPlaque(data);
     facadeEl.innerHTML = '';
 
     // 3 piani superiori da 6 finestre ciascuno (indici 0..17)
@@ -417,8 +419,8 @@
       const start = floorIdx * 6;
       for (let i = 0; i < 6; i++) {
         const boxNum = order[start + i];
-        const isOpen = Boolean(opened[String(boxNum)]);
-        floorEl.appendChild(createWindowElement(boxNum, isOpen));
+        const openedContent = AdventStorage.resolveOpenedContent(data, boxNum);
+        floorEl.appendChild(createWindowElement(boxNum, openedContent));
       }
       facadeEl.appendChild(floorEl);
     }
@@ -429,14 +431,14 @@
 
     for (let i = 18; i < 21; i++) {
       const boxNum = order[i];
-      groundEl.appendChild(createWindowElement(boxNum, Boolean(opened[String(boxNum)])));
+      groundEl.appendChild(createWindowElement(boxNum, AdventStorage.resolveOpenedContent(data, boxNum)));
     }
 
-    groundEl.appendChild(createDoorElement(Boolean(opened['25'])));
+    groundEl.appendChild(createDoorElement(AdventStorage.resolveOpenedContent(data, 25)));
 
     for (let i = 21; i < 24; i++) {
       const boxNum = order[i];
-      groundEl.appendChild(createWindowElement(boxNum, Boolean(opened[String(boxNum)])));
+      groundEl.appendChild(createWindowElement(boxNum, AdventStorage.resolveOpenedContent(data, boxNum)));
     }
 
     facadeEl.appendChild(groundEl);
@@ -451,25 +453,50 @@
   }
 
   function openModal(boxNumber, content) {
+    const lists = getCustomLists();
     modalBoxBadgeEl.textContent = boxNumber === 25 ? 'Portone #25' : `Casella #${boxNumber}`;
 
     if (modalHeroEmojiEl) {
-      modalHeroEmojiEl.textContent = boxNumber === 25
-        ? '🎅'
-        : OPEN_ICONS[(boxNumber - 1) % OPEN_ICONS.length];
+      modalHeroEmojiEl.className = 'modal-hero-emoji';
+      if (content.iconMode === 'hidden' || !content.resolvedIcon) {
+        modalHeroEmojiEl.hidden = true;
+        modalHeroEmojiEl.textContent = '';
+      } else {
+        modalHeroEmojiEl.hidden = false;
+        modalHeroEmojiEl.textContent = content.resolvedIcon;
+        const len = countGraphemes(content.resolvedIcon);
+        if (len >= 5) {
+          modalHeroEmojiEl.classList.add('modal-hero-emoji--long-text');
+        } else if (len >= 3) {
+          modalHeroEmojiEl.classList.add('modal-hero-emoji--short-text');
+        }
+      }
     }
 
     if (content.alreadyOpened) {
+      modalStatusTagEl.hidden = false;
       modalStatusTagEl.textContent = '♻️ Già estratta';
       modalStatusTagEl.classList.remove('is-new');
-    } else {
-      const randomTag = NEW_OPEN_TAGS[Math.floor(Math.random() * NEW_OPEN_TAGS.length)];
-      modalStatusTagEl.textContent = boxNumber === 25 ? '🌟 Gran Finale!' : randomTag;
+    } else if (boxNumber === 25) {
+      modalStatusTagEl.hidden = false;
+      modalStatusTagEl.textContent = '🌟 Gran Finale!';
       modalStatusTagEl.classList.add('is-new');
+    } else {
+      const tags = Array.isArray(lists.newOpenTags) ? lists.newOpenTags : [];
+      if (tags.length > 0) {
+        modalStatusTagEl.hidden = false;
+        modalStatusTagEl.textContent = tags[Math.floor(Math.random() * tags.length)];
+        modalStatusTagEl.classList.add('is-new');
+      } else {
+        modalStatusTagEl.hidden = true;
+      }
     }
 
     if (modalFunQuipEl) {
-      modalFunQuipEl.textContent = FUN_QUIPS[Math.floor(Math.random() * FUN_QUIPS.length)];
+      const quips = Array.isArray(lists.funQuips) ? lists.funQuips : [];
+      modalFunQuipEl.textContent = quips.length > 0
+        ? quips[Math.floor(Math.random() * quips.length)]
+        : '';
     }
 
     modalTitleEl.textContent = content.title || `Casella #${boxNumber}`;
@@ -512,10 +539,13 @@
   // Easter Eggs interattivi!
   if (snowmanBtn) {
     snowmanBtn.addEventListener('click', () => {
-      const line = SNOWMAN_LINES[easterCounters.snowman % SNOWMAN_LINES.length];
-      easterCounters.snowman += 1;
+      const lines = getCustomLists().snowmanLines || [];
       triggerBounceClass(snowmanBtn, 'is-active', 580);
-      showSpeechBubble(snowmanBubbleEl, line);
+      if (lines.length > 0) {
+        const line = lines[easterCounters.snowman % lines.length];
+        easterCounters.snowman += 1;
+        showSpeechBubble(snowmanBubbleEl, line);
+      }
       spawnConfetti(snowmanBtn, 12, false);
       playBoingSound();
     });
@@ -523,10 +553,13 @@
 
   if (reindeerBtn) {
     reindeerBtn.addEventListener('click', () => {
-      const line = REINDEER_LINES[easterCounters.reindeer % REINDEER_LINES.length];
-      easterCounters.reindeer += 1;
+      const lines = getCustomLists().reindeerLines || [];
       triggerBounceClass(reindeerBtn, 'is-active', 540);
-      showSpeechBubble(reindeerBubbleEl, line);
+      if (lines.length > 0) {
+        const line = lines[easterCounters.reindeer % lines.length];
+        easterCounters.reindeer += 1;
+        showSpeechBubble(reindeerBubbleEl, line);
+      }
       spawnConfetti(reindeerBtn, 12, false);
       playBoingSound();
     });
@@ -534,10 +567,13 @@
 
   if (santaBtn) {
     santaBtn.addEventListener('click', () => {
-      const line = SANTA_LINES[easterCounters.santa % SANTA_LINES.length];
-      easterCounters.santa += 1;
+      const lines = getCustomLists().santaLines || [];
       triggerBounceClass(santaBtn, 'is-kicking', 1100);
-      showSpeechBubble(santaBubbleEl, line);
+      if (lines.length > 0) {
+        const line = lines[easterCounters.santa % lines.length];
+        easterCounters.santa += 1;
+        showSpeechBubble(santaBubbleEl, line);
+      }
       spawnConfetti(santaBtn, 14, false);
       playBoingSound();
     });
