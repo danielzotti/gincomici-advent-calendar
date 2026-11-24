@@ -3,7 +3,6 @@
 
   const facadeEl = document.getElementById('house-facade');
   const openedCounterEl = document.getElementById('opened-counter');
-  const modeBadgeEl = document.getElementById('mode-badge');
   const fullscreenBtn = document.getElementById('btn-fullscreen');
 
   const modalOverlayEl = document.getElementById('modal-overlay');
@@ -175,10 +174,6 @@
     if (openedCounterEl) {
       openedCounterEl.textContent = `Aperte: ${totalOpened} / 25`;
     }
-    if (modeBadgeEl) {
-      modeBadgeEl.textContent =
-        data.mode === 'fixed' ? 'Modalità: Casella fissa' : 'Modalità: Sequenziale';
-    }
   }
 
   function openModal(boxNumber, content) {
@@ -213,9 +208,9 @@
     const boxNumber = Number(target.dataset.box);
     if (!Number.isInteger(boxNumber)) return;
 
-    lastFocusedTrigger = target;
     const { content } = AdventStorage.openBox(boxNumber);
     renderHouse();
+    lastFocusedTrigger = facadeEl.querySelector(`[data-box="${boxNumber}"]`);
     openModal(boxNumber, content);
   });
 
