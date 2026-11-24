@@ -19,13 +19,33 @@
   let lastFocusedTrigger = null;
 
   function registerServiceWorker() {
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('./sw.js').catch((err) => {
+    if (!('serviceWorker' in navigator)) return;
+
+    const hadController = Boolean(navigator.serviceWorker.controller);
+    let isRefreshing = false;
+
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!hadController || isRefreshing) return;
+      isRefreshing = true;
+      window.location.reload();
+    });
+
+    window.addEventListener('load', () => {
+      navigator.serviceWorker
+        .register('./sw.js', { updateViaCache: 'none' })
+        .then((registration) => {
+          registration.update().catch(() => {});
+
+          document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState === 'visible') {
+              registration.update().catch(() => {});
+            }
+          });
+        })
+        .catch((err) => {
           console.warn('Service Worker non registrato:', err);
         });
-      });
-    }
+    });
   }
 
   function createWindowElement(boxNumber, isOpen) {
@@ -152,9 +172,13 @@
 
     // Aggiorna contatore e badge modalità
     const totalOpened = Object.keys(opened).length;
-    openedCounterEl.textContent = `Aperte: ${totalOpened} / 25`;
-    modeBadgeEl.textContent =
-      data.mode === 'fixed' ? 'Modalità: Casella fissa' : 'Modalità: Sequenziale';
+    if (openedCounterEl) {
+      openedCounterEl.textContent = `Aperte: ${totalOpened} / 25`;
+    }
+    if (modeBadgeEl) {
+      modeBadgeEl.textContent =
+        data.mode === 'fixed' ? 'Modalità: Casella fissa' : 'Modalità: Sequenziale';
+    }
   }
 
   function openModal(boxNumber, content) {

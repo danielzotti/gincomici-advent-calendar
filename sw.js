@@ -1,4 +1,4 @@
-const CACHE_NAME = 'advent-calendar-pwa-v3';
+const CACHE_NAME = 'advent-calendar-pwa-v4';
 
 const ASSETS_TO_CACHE = [
   './',
@@ -19,7 +19,11 @@ const ASSETS_TO_CACHE = [
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
+      return Promise.all(
+        ASSETS_TO_CACHE.map((asset) =>
+          cache.add(new Request(asset, { cache: 'no-cache' }))
+        )
+      );
     }).then(() => self.skipWaiting())
   );
 });
@@ -36,6 +40,23 @@ self.addEventListener('activate', (event) => {
   );
 });
 
+async function fetchFresh(request) {
+  const response = await fetch(request.url, {
+    cache: 'no-cache',
+    credentials: 'same-origin'
+  });
+
+  if (request.mode === 'navigate' && response.redirected) {
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: response.headers
+    });
+  }
+
+  return response;
+}
+
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
 
@@ -43,33 +64,45 @@ self.addEventListener('fetch', (event) => {
   if (url.origin !== self.location.origin) return;
 
   event.respondWith(
-    caches.match(event.request, { ignoreSearch: true }).then((cachedResponse) => {
-      if (cachedResponse) {
-        return cachedResponse;
-      }
-
-      return fetch(event.request)
-        .then((networkResponse) => {
-          if (!networkResponse || networkResponse.status !== 200 || networkResponse.type !== 'basic') {
-            return networkResponse;
+    fetchFresh(event.request)
+      .then(async (networkResponse) => {
+        if (networkResponse && networkResponse.status >= 500) {
+          const cachedFallback = await caches.match(event.request, { ignoreSearch: true });
+          if (cachedFallback) {
+            return cachedFallback;
           }
+          return networkResponse;
+        }
 
+        if (
+          networkResponse &&
+          networkResponse.status === 200 &&
+          (networkResponse.type === 'basic' || networkResponse.type === 'default')
+        ) {
           const responseToCache = networkResponse.clone();
           caches.open(CACHE_NAME).then((cache) => {
             cache.put(event.request, responseToCache);
           });
+        }
 
-          return networkResponse;
-        })
-        .catch(() => {
-          if (event.request.mode === 'navigate') {
-            if (url.pathname.endsWith('configuration.html')) {
-              return caches.match('./configuration.html');
-            }
-            return caches.match('./index.html');
+        return networkResponse;
+      })
+      .catch(async () => {
+        const cachedResponse = await caches.match(event.request, { ignoreSearch: true });
+        if (cachedResponse) {
+          return cachedResponse;
+        }
+
+        if (event.request.mode === 'navigate') {
+          const fallbackPage = url.pathname.endsWith('configuration.html')
+            ? await caches.match('./configuration.html')
+            : await caches.match('./index.html');
+          if (fallbackPage) {
+            return fallbackPage;
           }
-          return new Response('', { status: 404, statusText: 'Offline' });
-        });
-    })
+        }
+
+        return new Response('', { status: 503, statusText: 'Offline' });
+      })
   );
 });

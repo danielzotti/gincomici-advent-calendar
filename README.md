@@ -27,7 +27,7 @@ An interactive, offline-ready Christmas Advent Calendar Progressive Web App (PWA
   - **Window Numbering Layout:** Shuffle the 1–24 numbers randomly across the house facade or sort them sequentially (`1–24`).
   - **JSON Export & Import:** Export the full configuration (optionally including currently opened boxes) to a `.json` file and import it on any device.
 - **Offline PWA Support:**
-  - Includes `manifest.json` and a Cache-First Service Worker (`sw.js`) that caches all HTML, CSS, JavaScript, and icon assets in the browser cache for full offline usage and desktop/mobile installation.
+  - Includes `manifest.json` and a Network-First Service Worker (`sw.js`) that fetches fresh updates whenever online and caches all HTML, CSS, JavaScript, and icon assets in the browser cache for full offline usage and desktop/mobile installation.
 
 ### Project Structure
 
@@ -92,7 +92,7 @@ Then open `http://localhost:8080` (or `http://127.0.0.1:8080`) in your browser. 
   - **Disposizione Numeri:** Permette di rimescolare casualmente i numeri `1–24` sulle finestre della facciata o ordinarli `1–24`.
   - **Esportazione e Importazione JSON:** Esporta l'intera configurazione (scegliendo se includere anche lo stato delle finestre aperte) in un file `.json` e reimportala su qualsiasi dispositivo.
 - **PWA Funzionante Offline:**
-  - Include `manifest.json` e un Service Worker (`sw.js`) con strategia Cache-First che salva tutti i file HTML, CSS, JavaScript e le icone nella cache del browser per funzionare interamente senza connessione Internet.
+  - Include `manifest.json` e un Service Worker (`sw.js`) con strategia Network-First che scarica automaticamente gli aggiornamenti quando sei online e salva tutti i file HTML, CSS, JavaScript e le icone nella cache del browser per funzionare anche senza connessione Internet.
 
 ### Struttura del Progetto
 
