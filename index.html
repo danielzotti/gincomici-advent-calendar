@@ -12,25 +12,65 @@
 </head>
 <body>
   <main id="stage" aria-label="Calendario dell'Avvento">
-    <!-- Sfondo stellato e luna -->
+    <!-- Sfondo cielo notturno, aurora, luna pazza, slitta, montagne e neve -->
     <div class="sky" aria-hidden="true">
-      <div class="moon"></div>
+      <div class="aurora"></div>
       <div class="stars stars-1"></div>
       <div class="stars stars-2"></div>
-      <div class="tree tree-left">
-        <div class="tree-trunk"></div>
+      <div class="stars stars-3"></div>
+      <div class="shooting-star"></div>
+
+      <!-- Slitta di Babbo Natale che vola nel cielo -->
+      <div class="sleigh-run">
+        <div class="sleigh-trail"></div>
+        <div class="sleigh-emoji">🛷🦌🦌<span class="rudolph-nose">🔴</span></div>
+        <span class="sleigh-banner">HO HO GIN!</span>
       </div>
-      <div class="tree tree-right">
-        <div class="tree-trunk"></div>
+
+      <!-- Montagne innevate sullo sfondo -->
+      <div class="mountains">
+        <div class="mountain mountain-1"></div>
+        <div class="mountain mountain-2"></div>
+        <div class="mountain mountain-3"></div>
+        <div class="mountain mountain-4"></div>
       </div>
+
+      <!-- Particelle di neve generate da app.js -->
+      <div id="snowfall" class="snowfall"></div>
     </div>
+
+    <!-- Luna interattiva con cappellino di Babbo Natale -->
+    <button id="easter-moon" type="button" class="moon-btn" title="Tocca la luna!" aria-label="Luna natalizia interattiva">
+      <span class="moon-hat" aria-hidden="true">
+        <span class="moon-hat-brim"></span>
+        <span class="moon-hat-pom"></span>
+      </span>
+      <span class="moon-face" aria-hidden="true">
+        <span class="moon-eye moon-eye-l"></span>
+        <span class="moon-eye moon-eye-r"></span>
+        <span class="moon-smile"></span>
+      </span>
+    </button>
 
     <!-- Barra discreta in alto -->
     <header class="hud-bar">
       <div class="hud-status">
-        <span id="opened-counter" class="hud-pill">Aperte: 0 / 25</span>
+        <div class="hud-pill hud-progress-pill">
+          <span class="hud-pill-icon" aria-hidden="true">🎄</span>
+          <span id="opened-counter">Aperte: 0 / 25</span>
+          <span class="hud-progress-track" aria-hidden="true">
+            <span id="opened-progress-fill" class="hud-progress-fill"></span>
+          </span>
+        </div>
       </div>
       <nav class="hud-actions" aria-label="Azioni rapide">
+        <button id="btn-party" type="button" class="hud-btn hud-btn--party" title="Attiva Follia Natalizia!" aria-pressed="false">
+          <span aria-hidden="true">🪩</span>
+          <span class="hud-btn-label">Follia</span>
+        </button>
+        <button id="btn-sound" type="button" class="hud-btn" title="Attiva/Disattiva suoni natalizi" aria-pressed="true">
+          <span aria-hidden="true">🔊</span>
+        </button>
         <button id="btn-fullscreen" type="button" class="hud-btn" title="Schermo intero">
           <span aria-hidden="true">⛶</span>
         </button>
@@ -40,19 +80,139 @@
       </nav>
     </header>
 
-    <!-- La Casa dell'Avvento (4 piani: 3x6 finestre + piano terra 6 finestre piccole e portone centrale) -->
-    <section class="house-wrapper" aria-label="Casa del calendario dell'avvento">
-      <div class="chimney" aria-hidden="true">
-        <div class="chimney-snow"></div>
-        <div class="smoke smoke-1"></div>
-        <div class="smoke smoke-2"></div>
+    <!-- Giardino Sinistro: Albero addobbato + Pupazzo di neve comico + Regali -->
+    <div class="yard yard-left">
+      <div class="christmas-tree tree-left" aria-hidden="true">
+        <div class="tree-star">★</div>
+        <div class="tree-tier tier-top"></div>
+        <div class="tree-tier tier-mid"></div>
+        <div class="tree-tier tier-bot"></div>
+        <div class="tree-lights">
+          <span class="t-light l1"></span>
+          <span class="t-light l2"></span>
+          <span class="t-light l3"></span>
+          <span class="t-light l4"></span>
+          <span class="t-light l5"></span>
+          <span class="t-light l6"></span>
+          <span class="t-light l7"></span>
+        </div>
+        <div class="tree-trunk"></div>
       </div>
 
+      <div class="gift-pile gift-pile-left" aria-hidden="true">
+        <div class="gift gift-red"></div>
+        <div class="gift gift-gold"></div>
+      </div>
+
+      <!-- Pupazzo di neve brillo con Gin & Microfono -->
+      <button id="easter-snowman" type="button" class="snowman" title="Tocca il pupazzo!" aria-label="Pupazzo di neve comico interattivo">
+        <span class="speech-bubble" id="bubble-snowman" aria-live="polite" hidden></span>
+        <span class="snowman-hat" aria-hidden="true">
+          <span class="hat-band"></span>
+        </span>
+        <span class="snowman-head" aria-hidden="true">
+          <span class="s-eye s-eye-l"></span>
+          <span class="s-eye s-eye-r"></span>
+          <span class="s-carrot"></span>
+          <span class="s-mouth"></span>
+        </span>
+        <span class="snowman-scarf" aria-hidden="true">
+          <span class="scarf-tail"></span>
+        </span>
+        <span class="snowman-body" aria-hidden="true">
+          <span class="s-button b1"></span>
+          <span class="s-button b2"></span>
+          <span class="s-button b3"></span>
+        </span>
+        <span class="snowman-arm arm-l" aria-hidden="true">🍸</span>
+        <span class="snowman-arm arm-r" aria-hidden="true">🎤</span>
+      </button>
+    </div>
+
+    <!-- Giardino Destro: Albero addobbato + Cartello Polo Nord + Renna pazza + Regali -->
+    <div class="yard yard-right">
+      <div class="christmas-tree tree-right" aria-hidden="true">
+        <div class="tree-star">★</div>
+        <div class="tree-tier tier-top"></div>
+        <div class="tree-tier tier-mid"></div>
+        <div class="tree-tier tier-bot"></div>
+        <div class="tree-lights">
+          <span class="t-light l1"></span>
+          <span class="t-light l2"></span>
+          <span class="t-light l3"></span>
+          <span class="t-light l4"></span>
+          <span class="t-light l5"></span>
+          <span class="t-light l6"></span>
+          <span class="t-light l7"></span>
+        </div>
+        <div class="tree-trunk"></div>
+      </div>
+
+      <div class="north-pole-sign" aria-hidden="true">
+        <div class="sign-post"></div>
+        <div class="sign-board sign-board-1">POLO NORD 0m</div>
+        <div class="sign-board sign-board-2">GIN BAR ↗</div>
+      </div>
+
+      <div class="gift-pile gift-pile-right" aria-hidden="true">
+        <div class="gift gift-green"></div>
+        <div class="gift gift-purple"></div>
+      </div>
+
+      <!-- Renna Rudolph birichina -->
+      <button id="easter-reindeer" type="button" class="reindeer" title="Tocca Rudolph!" aria-label="Renna Rudolph interattiva">
+        <span class="speech-bubble" id="bubble-reindeer" aria-live="polite" hidden></span>
+        <span class="reindeer-antlers" aria-hidden="true"></span>
+        <span class="reindeer-head" aria-hidden="true">
+          <span class="r-ear r-ear-l"></span>
+          <span class="r-ear r-ear-r"></span>
+          <span class="r-eye r-eye-l"></span>
+          <span class="r-eye r-eye-r"></span>
+          <span class="r-nose"></span>
+          <span class="r-smile"></span>
+        </span>
+        <span class="reindeer-scarf" aria-hidden="true"></span>
+      </button>
+    </div>
+
+    <!-- La Casa dell'Avvento (4 piani: 3x6 finestre + piano terra 6 finestre piccole e portone centrale) -->
+    <section class="house-wrapper" aria-label="Casa del calendario dell'avvento">
+      <!-- Camino con Babbo Natale incastrato! -->
+      <div class="chimney">
+        <button id="easter-santa" type="button" class="santa-stuck" title="Aiuta Babbo Natale!" aria-label="Babbo Natale incastrato nel camino">
+          <span class="speech-bubble speech-bubble--santa" id="bubble-santa" aria-live="polite" hidden></span>
+          <span class="santa-leg leg-l" aria-hidden="true"><span class="santa-boot"></span></span>
+          <span class="santa-leg leg-r" aria-hidden="true"><span class="santa-boot"></span></span>
+          <span class="santa-belt" aria-hidden="true"></span>
+        </button>
+        <div class="chimney-snow" aria-hidden="true"></div>
+        <div class="smoke smoke-1" aria-hidden="true"></div>
+        <div class="smoke smoke-2" aria-hidden="true"></div>
+        <div class="smoke smoke-3" aria-hidden="true"></div>
+      </div>
+
+      <!-- Tetto innevato con insegna luminosa Gin Comici, ghiaccioli e luci -->
       <div class="roof" aria-hidden="true">
-        <img class="roof-logo" src="./assets/brand/gin-comici-logo.png" alt="">
-        <div class="roof-trim"></div>
+        <div class="roof-shingles"></div>
         <div class="roof-snow"></div>
+        <div class="roof-marquee">
+          <span class="marquee-hat" aria-hidden="true">
+            <span class="m-hat-brim"></span>
+            <span class="m-hat-pom"></span>
+          </span>
+          <img class="roof-logo" src="./assets/brand/gin-comici-logo.png" alt="">
+          <span class="marquee-bulbs"></span>
+        </div>
+        <div class="roof-trim"></div>
+        <div class="roof-icicles"></div>
         <div class="roof-garland"></div>
+      </div>
+
+      <!-- Cartello comico sulla facciata -->
+      <div class="house-plaque" aria-hidden="true">
+        <span class="plaque-dot"></span>
+        <span>COMEDY CHALET · -12°C · GIN ON</span>
+        <span class="plaque-dot"></span>
       </div>
 
       <div id="house-facade" class="house-facade">
@@ -60,22 +220,36 @@
       </div>
     </section>
 
-    <!-- Terreno innevato -->
-    <div class="snow-ground" aria-hidden="true"></div>
+    <!-- Terreno innevato, sentiero e lampioni a bastoncino di zucchero -->
+    <div class="snow-ground" aria-hidden="true">
+      <div class="snow-path"></div>
+      <div class="candy-lamp lamp-left"></div>
+      <div class="candy-lamp lamp-right"></div>
+    </div>
+
+    <!-- Livello coriandoli / esplosioni -->
+    <div id="confetti-layer" class="confetti-layer" aria-hidden="true"></div>
 
     <!-- Modale contenuto casella (all'interno di #stage per mantenere il rapporto 16:9) -->
     <div id="modal-overlay" class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title" hidden>
       <div class="modal-card">
+        <div class="modal-candy-border" aria-hidden="true"></div>
+        <div class="modal-holly modal-holly-tl" aria-hidden="true">🎄</div>
+        <div class="modal-holly modal-holly-bl" aria-hidden="true">🎁</div>
         <button id="modal-close" type="button" class="modal-close" aria-label="Chiudi finestra">&times;</button>
-        <div class="modal-meta">
-          <span id="modal-box-badge" class="modal-badge">Casella #1</span>
-          <span id="modal-status-tag" class="modal-tag">Aperta ora</span>
+        <div class="modal-hero">
+          <span id="modal-hero-emoji" class="modal-hero-emoji" aria-hidden="true">🎁</span>
+          <div class="modal-meta">
+            <span id="modal-box-badge" class="modal-badge">Casella #1</span>
+            <span id="modal-status-tag" class="modal-tag">Aperta ora</span>
+          </div>
         </div>
         <h2 id="modal-title" class="modal-title">Titolo</h2>
         <div class="modal-divider" aria-hidden="true"></div>
         <div id="modal-description" class="modal-description">Descrizione</div>
         <div class="modal-footer">
-          <button id="modal-confirm" type="button" class="modal-btn">Chiudi</button>
+          <span id="modal-fun-quip" class="modal-fun-quip"></span>
+          <button id="modal-confirm" type="button" class="modal-btn">Chiudi &amp; Ridi 🎉</button>
         </div>
       </div>
     </div>

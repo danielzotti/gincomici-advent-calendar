@@ -22,7 +22,10 @@ body {
   margin: 0;
   padding: 0;
   min-height: 100%;
-  background: radial-gradient(circle at top, #17274d 0%, var(--bg) 65%);
+  background:
+    radial-gradient(circle at 15% 10%, rgba(230, 57, 70, 0.16), transparent 35%),
+    radial-gradient(circle at 85% 15%, rgba(16, 185, 129, 0.14), transparent 35%),
+    radial-gradient(circle at top, #182b57 0%, var(--bg) 68%);
   color: var(--text);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   line-height: 1.45;
@@ -38,14 +41,33 @@ body {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  align-items: flex-start;
+  align-items: center;
   gap: 16px;
   margin-bottom: 24px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid rgba(255, 209, 102, 0.22);
+}
+
+.header-brand {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.config-logo {
+  height: 44px;
+  width: auto;
+  border-radius: 8px;
+  border: 1.5px solid var(--gold);
+  background: #09090b;
+  padding: 4px 8px;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
 }
 
 .config-header h1 {
-  margin: 0 0 6px;
-  font-size: 1.75rem;
+  margin: 0 0 4px;
+  font-size: 1.7rem;
   color: var(--gold);
 }
 
@@ -62,7 +84,7 @@ body {
   z-index: 100;
   background: #0f172a;
   color: #f8fafc;
-  border: 1px solid var(--gold);
+  border: 1.5px solid var(--gold);
   border-radius: 10px;
   padding: 12px 18px;
   font-weight: 600;
@@ -81,11 +103,30 @@ body {
 }
 
 .card {
+  position: relative;
+  overflow: hidden;
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid rgba(255, 209, 102, 0.2);
   border-radius: 14px;
-  padding: 20px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+  padding: 22px 20px 20px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.28);
+}
+
+.card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: repeating-linear-gradient(
+    135deg,
+    #e63946 0 14px,
+    #fff 14px 28px,
+    #10b981 28px 42px,
+    #ffd166 42px 56px
+  );
+  opacity: 0.85;
 }
 
 .card h2 {
